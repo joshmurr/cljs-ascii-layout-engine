@@ -1,0 +1,7 @@
+.clj-kondo/
+.git
+.lsp/
+.shadow-cljs/
+package-lock.json
+node_modules/
+public/js/
