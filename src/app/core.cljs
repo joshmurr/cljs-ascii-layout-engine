@@ -37,56 +37,62 @@
         (put x y2 \+)
         (put x2 y2 \+))))
 
-(defn circle
-  [grid x y r]
-  (reduce (fn [g theta]
-            (let [x1 (+ (* (js/Math.cos theta) r) x)
-                  y1 (+ (* (js/Math.sin theta) r) y)]
-              (-> g
-                  (put x1 y1 \.))))
-          grid
-          (range 0 two-pi (/ two-pi 64))))
+#_(defn circle
+    [grid x y r]
+    (reduce (fn [g theta]
+              (let [x1 (+ (* (js/Math.cos theta) r) x)
+                    y1 (+ (* (js/Math.sin theta) r) y)]
+                (-> g
+                    (put x1 y1 \.))))
+            grid
+            (range 0 two-pi (/ two-pi 64))))
 
 (clojure.string/join (repeat 10 \space))
 
 (defn clear
-  [grid x y w h]
-  (let [clear-line (clojure.string/join (repeat w \space))]
-    (reduce (fn [g row] (put-str g x row clear-line)) grid (range y (+ y h)))))
-
-(defn shader
-  [grid frag]
-  (let [height (count grid)
-        width (count (first grid))]
-    (reduce (fn [g i]
-              (let [x (mod i width)
-                    y (quot i width)]
-                (put g x y (frag x y width height))))
-            grid
-            (range 0 (* width height)))))
+  ([grid x y w h] (clear grid x y w h \space))
+  ([grid x y w h filler]
+   (let [clear-line (clojure.string/join (repeat w filler))]
+     (reduce (fn [g row] (put-str g x row clear-line))
+             grid
+             (range y (+ y h))))))
 
 (def ramp " .:-=+*#%@")
 (def paul-ramp
+  "https://paulbourke.net/dataformats/asciiart/"
   (reverse
    "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "))
 (defn gray-luma [r g b] (long (+ (* 0.299 r) (* 0.587 g) (* 0.114 b))))
 
+(defn shader
+  ([grid frag] (shader grid frag paul-ramp))
+  ([grid frag ramp]
+   (let [height (count grid)
+         width (count (first grid))]
+     (reduce (fn [g i]
+               (let [x (mod i width)
+                     y (quot i width)]
+                 (put g x y (frag x y width height ramp))))
+             grid
+             (range 0 (* width height))))))
+
+
 (defn frag
-  [x y w h]
+  [x y w h ramp]
   (let [r (* (/ x w) 256)
         g (* (/ y h) 256)
-        b 0
+        b 256
         gray (gray-luma r g b)
-        n (count paul-ramp)
+        n (count ramp)
         c (min (dec n) (quot (* gray n) 256))]
-    (nth paul-ramp c)))
+    (nth ramp c)))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
 
 (defn draw!
   []
   (let [grid (-> (blank-grid 160 60)
-                 (shader frag)
+                 (shader frag ramp)
                  (clear 17 19 66 20)
                  (box 20 20 60 18)
                  (box 24 23 28 6)
@@ -97,4 +103,4 @@
 
 (defn ^:export init [] (draw!))
 
-(defn reload [] (draw!))
+#_(defn reload [] (draw!))
