@@ -1,7 +1,10 @@
 (ns app.core
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            #_[app.data :as data]))
 
-(def two-pi (* js/Math.PI 2))
+; (def two-pi (* js/Math.PI 2))
+(def MAX_WIDTH 95)
+(def MAX_HEIGHT 73)
 
 (defn blank-grid [cols rows] (vec (repeat rows (vec (repeat cols \space)))))
 
@@ -62,7 +65,10 @@
   "https://paulbourke.net/dataformats/asciiart/"
   (reverse
    "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "))
-(defn gray-luma [r g b] (long (+ (* 0.299 r) (* 0.587 g) (* 0.114 b))))
+(defn gray-luma
+  "Returns a value [0, 255)"
+  [r g b]
+  (long (+ (* 0.299 r) (* 0.587 g) (* 0.114 b))))
 
 (defn shader
   ([grid frag] (shader grid frag paul-ramp))
@@ -77,7 +83,7 @@
              (range 0 (* width height))))))
 
 
-(defn frag
+(defn diagonal-gradient-frag
   [x y w h ramp]
   (let [r (* (/ x w) 256)
         g (* (/ y h) 256)
@@ -89,18 +95,31 @@
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
 
+(defn text-box
+  [grid x y text]
+  (let [padding 1
+        width (+ (reduce #(max (count %2) %1) 0 text) (* 2 padding))
+        height (+ (count text) (* 2 padding))]
+    (reduce (fn [g [idx line]] (put-str g x (+ y idx) line))
+            (clear grid (- x padding) (- y padding) width height)
+            (map-indexed vector text))))
+
 (defn draw!
   []
-  (let [grid (-> (blank-grid 120 50)
-                 (shader frag ramp)
+  (let [grid (-> (blank-grid MAX_WIDTH MAX_HEIGHT)
+                 (shader diagonal-gradient-frag paul-ramp)
                  (clear 17 19 66 20)
                  (box 20 20 60 18)
                  (box 24 23 28 6)
                  (put-str 26 25 "hello, ascii")
-                 (put-str 26 26 "edit src/app/core.cljs"))]
+                 (put-str 26 26 "edit src/app/core.cljs")
+                 (text-box 20
+                           45
+                           ["This is my text box"
+                            "another string"
+                            "some other stuff"
+                            "a new line"]))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
 (defn ^:export init [] (draw!))
-
-#_(defn reload [] (draw!))
