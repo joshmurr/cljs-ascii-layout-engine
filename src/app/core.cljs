@@ -91,7 +91,7 @@
 
 (defn draw!
   []
-  (let [grid (-> (blank-grid 160 60)
+  (let [grid (-> (blank-grid 120 50)
                  (shader frag ramp)
                  (clear 17 19 66 20)
                  (box 20 20 60 18)
