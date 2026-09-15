@@ -6,12 +6,10 @@
              [blank-grid clear box put-str text-box render]]
             [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]))
 
-(def MAX_WIDTH 95)
-(def MAX_HEIGHT 73)
 
 (defn draw!
   []
-  (let [grid (-> (blank-grid MAX_WIDTH MAX_HEIGHT)
+  (let [grid (-> (blank-grid)
                  (shader diagonal-gradient-frag paul-ramp)
                  (clear 17 19 66 20)
                  (box 20 20 60 18)

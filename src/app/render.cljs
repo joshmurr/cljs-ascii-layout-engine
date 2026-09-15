@@ -2,8 +2,12 @@
   (:require [clojure.string :as str]))
 
 (def two-pi (* js/Math.PI 2))
+(def MAX_WIDTH 95)
+(def MAX_HEIGHT 73)
 
-(defn blank-grid [cols rows] (vec (repeat rows (vec (repeat cols \space)))))
+(defn blank-grid
+  ([] (blank-grid MAX_WIDTH MAX_HEIGHT))
+  ([cols rows] (vec (repeat rows (vec (repeat cols \space))))))
 
 (defn put
   [grid x y ch]
