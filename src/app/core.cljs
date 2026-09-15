@@ -1,10 +1,15 @@
 (ns app.core
-  (:require [clojure.string :as str]
-            [app.render :as render :refer [blank-grid text-box render]]
-            [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
-            [app.example.data :refer [client company]]))
+  (:require
+    [clojure.string :as str]
+    [app.render
+     :as
+     render
+     :refer
+     [blank-grid text-box render horzontal-line fixed-width-text-box MAX_WIDTH]]
+    [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
+    [app.example.data :refer [client payment company]]))
 
-(defn str-pair [a b] (str/join " " [a b]))
+(defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 
 (defn company-details
   [grid x y]
@@ -49,21 +54,43 @@
              :my 1
              :border true}))
 
+(defn payment-details
+  [grid x y]
+  (text-box grid
+            x
+            y
+            [(str-pair "Bank" (:bank payment) ": ")
+             (str-pair "Sort Code" (:sort-code payment) ": ")
+             (str-pair "Account" (:account payment) ": ")
+             (str-pair "IBAN" (:iban payment) ": ")]
+            {:px 2
+             :py 1
+             :mx 2
+             :my 1
+             :border true}))
+
 (defn draw!
   []
-  (let [grid (-> (blank-grid)
-                 (shader diagonal-gradient-frag paul-ramp)
-                 (company-details 8 5)
-                 (invoice-details 63
-                                  5
-                                  1
-                                  (.toDateString (js/Date.))
-                                  (.toDateString (js/Date.)))
-                 (client-details 8 21))]
+  (let
+    [grid
+     (->
+       (blank-grid)
+       (shader diagonal-gradient-frag paul-ramp)
+       (company-details 8 5)
+       (invoice-details 63
+                        5
+                        1
+                        (.toDateString (js/Date.))
+                        (.toDateString (js/Date.)))
+       (client-details 8 21)
+       (horzontal-line 2 33 (- MAX_WIDTH 3))
+       (fixed-width-text-box
+        8 37
+        20
+        "This is some text which I need to split up but if only there was a utility to do that for me.")
+       (payment-details 8 50))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
-(comment
-  (conj [] "a" ["b"]))
 
 (defn ^:export init [] (draw!))

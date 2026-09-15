@@ -19,6 +19,14 @@
   [grid x y s]
   (reduce (fn [g [i ch]] (put g (+ x i) y ch)) grid (map-indexed vector s)))
 
+(defn horzontal-line
+  [grid x y w]
+  (reduce (fn [g i]
+            (-> g
+                (put (+ x i) y \-)))
+          grid
+          (range 1 (dec w))))
+
 (defn box
   [grid x y w h]
   (let [x2 (+ x (dec w))
@@ -87,5 +95,46 @@
                (- height (* 2 my))))
       (map-indexed vector text)))))
 
+(comment
+  (name :thing)
+  (keyword "thing")
+  (str/split "Hello this is a sentence" #" ")
+  (def table-data
+    [{:description "22 days work"
+      :qty 22
+      :rate 450}
+     {:description "Some materials"
+      :qty 1
+      :rate 42.50}]))
+
+(defn make-lines
+  [words line-len]
+  (reduce (fn [acc word]
+            (let [current-line-len (count (last acc))]
+              (if (>= (+ current-line-len (count word)) line-len)
+                (conj acc word)
+                (assoc acc
+                       (dec (count acc))
+                       (str/trim (str/join " " [(last acc) word]))))))
+          [""]
+          words))
+
+(comment
+  (last ["a" "b"])
+  (count (str/join " " ["abc ced" "word"]))
+  (assoc [] 0 (str/join " " [(last ["this is the"]) "word"]))
+  (count [1 2 3])
+  (str "One" "two")
+  (make-lines
+   (str/split "Hello this is some words and some things word word word." #" ")
+   20))
+
+(defn fixed-width-text-box
+  [grid x y width text]
+  (let [words (str/split text #" ")
+        lines (make-lines words width)]
+    (text-box grid x y lines)))
+
+#_(defn table [grid y data] (let [width (- 4 MAX_WIDTH) desc-width 20]))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
