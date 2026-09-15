@@ -50,6 +50,7 @@
                   (put x1 y1 \.))))
           grid
           (range 0 two-pi (/ two-pi 64))))
+
 (defn clear
   ([grid x y w h] (clear grid x y w h \space))
   ([grid x y w h filler]
@@ -64,13 +65,27 @@
     x
     y
     text
-    {:keys [px py]
+    {:keys [px py mx my border]
      :or {px 1
-          py 1}}]
-   (let [width (+ (reduce #(max (count %2) %1) 0 text) (* 2 px))
-         height (+ (count text) (* 2 py))]
-     (reduce (fn [g [idx line]] (put-str g x (+ y idx) line))
-             (clear grid (- x px) (- y py) width height)
-             (map-indexed vector text)))))
+          py 1
+          mx 0
+          my 0
+          border false}}]
+   (let [border-width (if border 1 0)
+         width (+ (reduce #(max (count %2) %1) 0 text)
+                  (* 2 px)
+                  (* 2 mx)
+                  (* 2 border-width))
+         height (+ (count text) (* 2 py) (* 2 my) (* 2 border-width))]
+     (reduce
+      (fn [g [idx line]] (put-str g x (+ y idx) line))
+      (-> grid
+          (clear (- x px mx border-width) (- y py my border-width) width height)
+          (box (- x px border-width)
+               (- y py border-width)
+               (- width (* 2 mx))
+               (- height (* 2 my))))
+      (map-indexed vector text)))))
+
 
 (defn render [grid] (str/join "\n" (map str/join grid)))

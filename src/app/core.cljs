@@ -1,9 +1,5 @@
 (ns app.core
-  (:require [app.render
-             :as
-             render
-             :refer
-             [blank-grid clear box put-str text-box render]]
+  (:require [app.render :as render :refer [blank-grid text-box render]]
             [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]))
 
 
@@ -11,17 +7,25 @@
   []
   (let [grid (-> (blank-grid)
                  (shader diagonal-gradient-frag paul-ramp)
-                 (clear 17 19 66 20)
-                 (box 20 20 60 18)
-                 (box 24 23 28 6)
-                 (put-str 26 25 "hello, ascii")
-                 (put-str 26 26 "edit src/app/core.cljs")
+                 (text-box 22
+                           25
+                           ["Hello, ASCII" "edit src/app/core.cljs"]
+                           {:px 2
+                            :py 1
+                            :mx 2
+                            :my 1
+                            :border true})
                  (text-box 20
                            45
                            ["This is my text box"
                             "another string"
                             "some other stuff"
-                            "a new line"]))]
+                            "a new line"]
+                           {:px 2
+                            :py 1
+                            :mx 2
+                            :my 1
+                            :border true}))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
