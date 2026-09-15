@@ -59,12 +59,18 @@
              (range y (+ y h))))))
 
 (defn text-box
-  [grid x y text]
-  (let [padding 1
-        width (+ (reduce #(max (count %2) %1) 0 text) (* 2 padding))
-        height (+ (count text) (* 2 padding))]
-    (reduce (fn [g [idx line]] (put-str g x (+ y idx) line))
-            (clear grid (- x padding) (- y padding) width height)
-            (map-indexed vector text))))
+  ([grid x y text] (text-box grid x y text {}))
+  ([grid
+    x
+    y
+    text
+    {:keys [px py]
+     :or {px 1
+          py 1}}]
+   (let [width (+ (reduce #(max (count %2) %1) 0 text) (* 2 px))
+         height (+ (count text) (* 2 py))]
+     (reduce (fn [g [idx line]] (put-str g x (+ y idx) line))
+             (clear grid (- x px) (- y py) width height)
+             (map-indexed vector text)))))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
