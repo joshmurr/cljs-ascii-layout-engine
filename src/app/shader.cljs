@@ -1,6 +1,8 @@
 (ns app.shader
   (:require [app.render :refer [put]]))
 
+(def two-pi (* js/Math.PI 2))
+
 (def ramp " .:-=+*#%@")
 
 (def paul-ramp
@@ -12,6 +14,18 @@
   "Returns a value [0, 255)"
   [r g b]
   (long (+ (* 0.299 r) (* 0.587 g) (* 0.114 b))))
+
+
+(defn circle
+  [grid x y r]
+  (reduce (fn [g theta]
+            (let [x1 (+ (* (js/Math.cos theta) r) x)
+                  y1 (+ (* (js/Math.sin theta) r) y)]
+              (-> g
+                  (put x1 y1 \.))))
+          grid
+          (range 0 two-pi (/ two-pi 64))))
+
 
 (defn shader
   ([grid frag] (shader grid frag paul-ramp))

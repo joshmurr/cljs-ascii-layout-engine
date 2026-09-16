@@ -1,7 +1,6 @@
 (ns app.render
   (:require [clojure.string :as str]))
 
-(def two-pi (* js/Math.PI 2))
 (def MAX_WIDTH 95)
 (def MAX_HEIGHT 73)
 
@@ -56,16 +55,6 @@
         (put x2 y \+)
         (put x y2 \+)
         (put x2 y2 \+))))
-
-(defn circle
-  [grid x y r]
-  (reduce (fn [g theta]
-            (let [x1 (+ (* (js/Math.cos theta) r) x)
-                  y1 (+ (* (js/Math.sin theta) r) y)]
-              (-> g
-                  (put x1 y1 \.))))
-          grid
-          (range 0 two-pi (/ two-pi 64))))
 
 (defn text-box
   ([grid x y text] (text-box grid x y text {}))
@@ -149,45 +138,29 @@
           cell-width 10
           gutter 2}
      :as table-opts}]
-   (reduce (fn [g v]
-             (-> g
-                 (clear (- x 3)
-                        (+ (- y 2) (:y-offset v))
-                        (+ 3 (* 4 cell-width) desc-width (* 4 gutter))
-                        (+ (count (:description v)) (* 2 2)))
-                 (text-box x (+ y (:y-offset v)) (:key v))
-                 (text-box (+ x cell-width gutter)
-                           (+ y (:y-offset v))
-                           (:description v))
-                 (text-box (+ x desc-width cell-width gutter)
-                           (+ y (:y-offset v))
-                           (:qty v))
-                 (text-box (+ x desc-width (* 2 (+ cell-width gutter)))
-                           (+ y (:y-offset v))
-                           (:rate v))
-                 (text-box (+ x desc-width (* 3 (+ cell-width gutter)))
-                           (+ y (:y-offset v))
-                           (:total v))))
-           grid
-           (pre-process-table data table-opts))))
+   (reduce
+    (fn [g v]
+      (let [y-off (:y-offset v)
+            desc (:description v)]
+        (-> g
+            (clear (- x gutter)
+                   (+ (- y gutter) y-off)
+                   (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
+                   (+ (count desc) (* 2 gutter)))
+            #_(box (- x gutter)
+                   (- y gutter)
+                   (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
+                   (+ (count desc) (* 2 gutter)))
+            (text-box x (+ y y-off) (:key v))
+            (text-box (+ x cell-width gutter) (+ y y-off) desc)
+            (text-box (+ x desc-width cell-width gutter) (+ y y-off) (:qty v))
+            (text-box (+ x desc-width (* 2 (+ cell-width gutter)))
+                      (+ y y-off)
+                      (:rate v))
+            (text-box (+ x desc-width (* 3 (+ cell-width gutter)))
+                      (+ y y-off)
+                      (:total v)))))
+    grid
+    (pre-process-table data table-opts))))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
-
-(comment
-  (name :thing)
-  (keyword "thing")
-  (str/split "Hello this is a sentence" #" ")
-  (def table-data
-    [{:description
-      "22 days work but actually I did loads of stuff which I am going to mention that I did it but I don't have time to go into it now."
-      :qty 22
-      :rate 450}
-     {:description "Some materials"
-      :qty 1
-      :rate 42.50}])
-  (map? (first table-data)) ;true
-  (assoc (first table-data)
-         :description (split-text (:description (first table-data)) 20)
-         :total (* (:qty (first table-data)) (:rate (first table-data))))
-  (pre-process-table table-data)
-  (reduce-kv (fn [g k v] (assoc g k v)) {} table-data))

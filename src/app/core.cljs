@@ -90,7 +90,7 @@
                  (client-details 8 21)
                  (horzontal-line 2 33 (- MAX_WIDTH 3))
                  (table 8 40 table-data {:desc-width 35})
-                 #_(payment-details 8 50))]
+                 (payment-details 8 60))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
