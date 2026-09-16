@@ -105,7 +105,7 @@
 
 (defn format-money
   ([v] (format-money v 8))
-  ([v pad] (.padStart (.toString (.toFixed v 2)) pad " ")))
+  ([v pad] (.padStart (.toString (.toFixed (js/parseFloat v) 2)) pad " ")))
 
 (defn pre-process-table
   ([data] (pre-process-table data {}))

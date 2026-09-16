@@ -17,20 +17,52 @@
         background: #111;
         color: #ddd;
       }
-      pre#screen {
-        margin: 0;
-        padding: 0;
-        font-weight: 400;
-        font-style: normal;
-        font-family: "IBM Plex Mono", monospace;
-        font-size: 14px;
-        line-height: 1.1;
-        white-space: pre;
-        letter-spacing: 0;
+
+      form {
+        display: table;
+        div {
+          display: table-row;
+        }
+        label,
+        input {
+          display: table-cell;
+          margin-bottom: 10px;
+        }
+
+        label {
+          padding-right: 10px;
+        }
       }
     </style>
   </head>
   <body>
+    <h1>Invoice</h1>
+    <form action="" method="get">
+      <div>
+        <label for="description">Description:</label>
+        <textarea
+          name="description"
+          id="description"
+          rows="8"
+          cols="23"
+          required
+        >
+Write description...
+          </textarea>
+      </div>
+      <div>
+        <label for="qty">Quantity:</label>
+        <input type="number" name="qty" id="qty" required />
+      </div>
+      <div>
+        <label for="rate">Rate:</label>
+        <input type="number" name="rate" id="rate" step="0.01" required />
+      </div>
+      <div>
+        <input type="submit" value="Invoice!" />
+      </div>
+    </form>
+
     <pre id="screen"></pre>
     <script src="/js/shared.js"></script>
     <script src="/js/main.js"></script>
