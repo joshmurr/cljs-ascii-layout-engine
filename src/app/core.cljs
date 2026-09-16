@@ -71,7 +71,7 @@
 (def table-data
   [{:description
     "22 days work but actually I did loads of stuff which I am going to mention that I did it but I don't have time to go into it now."
-    :qty 22
+    :qty 23
     :rate 450}
    {:description "Some materials"
     :qty 1
