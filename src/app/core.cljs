@@ -1,13 +1,12 @@
 (ns app.core
-  (:require
-    [clojure.string :as str]
-    [app.render
-     :as
-     render
-     :refer
-     [blank-grid text-box render horzontal-line fixed-width-text-box MAX_WIDTH]]
-    [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
-    [app.example.data :refer [client payment company]]))
+  (:require [clojure.string :as str]
+            [app.render
+             :as
+             render
+             :refer
+             [blank-grid text-box render horzontal-line table MAX_WIDTH]]
+            [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
+            [app.example.data :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 
@@ -69,26 +68,29 @@
              :my 1
              :border true}))
 
+(def table-data
+  [{:description
+    "22 days work but actually I did loads of stuff which I am going to mention that I did it but I don't have time to go into it now."
+    :qty 22
+    :rate 450}
+   {:description "Some materials"
+    :qty 1
+    :rate 42.50}])
+
 (defn draw!
   []
-  (let
-    [grid
-     (->
-       (blank-grid)
-       (shader diagonal-gradient-frag paul-ramp)
-       (company-details 8 5)
-       (invoice-details 63
-                        5
-                        1
-                        (.toDateString (js/Date.))
-                        (.toDateString (js/Date.)))
-       (client-details 8 21)
-       (horzontal-line 2 33 (- MAX_WIDTH 3))
-       (fixed-width-text-box
-        8 37
-        20
-        "This is some text which I need to split up but if only there was a utility to do that for me.")
-       (payment-details 8 50))]
+  (let [grid (-> (blank-grid)
+                 (shader diagonal-gradient-frag paul-ramp)
+                 (company-details 8 5)
+                 (invoice-details 63
+                                  5
+                                  1
+                                  (.toDateString (js/Date.))
+                                  (.toDateString (js/Date.)))
+                 (client-details 8 21)
+                 (horzontal-line 2 33 (- MAX_WIDTH 3))
+                 (table 8 40 table-data {:desc-width 35})
+                 #_(payment-details 8 50))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
