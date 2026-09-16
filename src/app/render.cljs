@@ -62,7 +62,7 @@
 (defn clear
   ([grid x y w h] (clear grid x y w h \space))
   ([grid x y w h filler]
-   (let [clear-line (clojure.string/join (repeat w filler))]
+   (let [clear-line (str/join (repeat w filler))]
      (reduce (fn [g row] (put-str g x row clear-line))
              grid
              (range y (+ y h))))))
@@ -87,12 +87,13 @@
          height (+ (count text) (* 2 py) (* 2 my) (* 2 border-width))]
      (reduce
       (fn [g [idx line]] (put-str g x (+ y idx) line))
-      (-> grid
-          (clear (- x px mx border-width) (- y py my border-width) width height)
-          (box (- x px border-width)
-               (- y py border-width)
-               (- width (* 2 mx))
-               (- height (* 2 my))))
+      (as-> grid g
+        (clear g (- x px mx border-width) (- y py my border-width) width height)
+        (cond-> g
+          border (box (- x px border-width)
+                      (- y py border-width)
+                      (- width (* 2 mx))
+                      (- height (* 2 my)))))
       (map-indexed vector text)))))
 
 (comment
@@ -125,6 +126,7 @@
   (assoc [] 0 (str/join " " [(last ["this is the"]) "word"]))
   (count [1 2 3])
   (str "One" "two")
+  (if (true? true) 1 2)
   (make-lines
    (str/split "Hello this is some words and some things word word word." #" ")
    20))
