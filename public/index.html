@@ -39,10 +39,10 @@
     <h1>Invoice</h1>
     <form action="" method="get">
       <div>
-        <label for="description">Description:</label>
+        <label for="description-0">Description:</label>
         <textarea
-          name="description"
-          id="description"
+          name="description-0"
+          id="description-0"
           rows="8"
           cols="23"
           required
@@ -51,17 +51,19 @@ Write description...
           </textarea>
       </div>
       <div>
-        <label for="qty">Quantity:</label>
-        <input type="number" name="qty" id="qty" required />
+        <label for="qty-0">Quantity:</label>
+        <input type="number" name="qty-0" id="qty-0" required />
       </div>
       <div>
-        <label for="rate">Rate:</label>
-        <input type="number" name="rate" id="rate" step="0.01" required />
+        <label for="rate-0">Rate:</label>
+        <input type="number" name="rate-0" id="rate-0" step="0.01" required />
       </div>
       <div>
         <input type="submit" value="Invoice!" />
       </div>
     </form>
+
+    <button id="add-line-item">Add line item</button>
 
     <pre id="screen"></pre>
     <script src="/js/shared.js"></script>
