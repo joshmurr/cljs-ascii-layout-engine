@@ -4,11 +4,20 @@
              :as
              render
              :refer
-             [blank-grid text-box render horzontal-line table MAX_WIDTH]]
-            [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
+             [blank-grid text-box render clear box table MAX_WIDTH]]
+            [app.shader
+             :refer
+             [shader amplitude diagonal-gradient-frag hex-grid paul-ramp]]
             [app.example.data :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
+
+(def default-opts
+  {:px 2
+   :py 1
+   :mx 4
+   :my 3
+   :border true})
 
 (defn company-details
   [grid x y]
@@ -20,11 +29,7 @@
                       (:email company)
                       (:phone company)
                       (str/join " " ["Company No:" (:number company)])])
-            {:px 2
-             :py 1
-             :mx 2
-             :my 1
-             :border true}))
+            default-opts))
 
 (defn invoice-details
   [grid x y invoice-number date due-date]
@@ -34,11 +39,7 @@
             [(str-pair "Invoice #" invoice-number)
              (str-pair "Date" date)
              (str-pair "Due Date" due-date)]
-            {:px 2
-             :py 1
-             :mx 2
-             :my 1
-             :border true}))
+            default-opts))
 
 (defn client-details
   [grid x y]
@@ -46,11 +47,7 @@
             x
             y
             (flatten ["Bill to:" (:name client) (vals (:address client))])
-            {:px 2
-             :py 1
-             :mx 2
-             :my 1
-             :border true}))
+            default-opts))
 
 (defn payment-details
   [grid x y]
@@ -61,11 +58,7 @@
              (str-pair "Sort Code" (:sort-code payment) ": ")
              (str-pair "Account" (:account payment) ": ")
              (str-pair "IBAN" (:iban payment) ": ")]
-            {:px 2
-             :py 1
-             :mx 2
-             :my 1
-             :border true}))
+            default-opts))
 
 (comment
   (def table-data
@@ -100,21 +93,26 @@
             []
             data)))
 
+(comment
+  (def thing {:f (fn [] 10)})
+  ((:f thing)))
+
 (defn draw!
   []
   (let [data (get-data-from-session)
         grid (-> (blank-grid)
-                 (shader diagonal-gradient-frag paul-ramp)
-                 (company-details 8 5)
-                 (invoice-details 63
-                                  5
+                 (shader amplitude paul-ramp)
+                 (company-details 11 7)
+                 (invoice-details 61
+                                  7
                                   1
                                   (.toDateString (js/Date.))
                                   (.toDateString (js/Date.)))
-                 (client-details 8 21)
-                 (horzontal-line 2 33 (- MAX_WIDTH 3))
-                 (table 8 40 data {:desc-width 35})
-                 (payment-details 8 60))]
+                 (client-details 11 27)
+                 #_(horzontal-line 2 33 (- MAX_WIDTH 3))
+                 (clear 4 40 (- MAX_WIDTH 8) 15)
+                 (table 8 43 data {:desc-width 32})
+                 (payment-details 56 62))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 

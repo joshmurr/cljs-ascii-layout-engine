@@ -127,6 +127,46 @@
     []
     data)))
 
+(defn make-table-headers
+  ([grid x y] (make-table-headers grid x y {}))
+  ([grid
+    x
+    y
+    {:keys [desc-width cell-width gutter]
+     :or {desc-width 28
+          cell-width 10
+          gutter 2}}]
+   (-> grid
+       (clear (- x gutter)
+              (+ (- y gutter) 0)
+              (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
+              (+ 3 (* 2 gutter)))
+       (text-box x y ["Item No."])
+       (text-box (+ x cell-width gutter) y ["Description"])
+       (text-box (+ x desc-width cell-width gutter) y ["Qty"])
+       (text-box (+ x desc-width (* 2 (+ cell-width gutter))) y ["Rate"])
+       (text-box (+ x desc-width (* 3 (+ cell-width gutter))) y ["Total"]))))
+
+#_(defn make-table-footer
+    ([grid x y] (make-table-footer grid x y {}))
+    ([grid
+      x
+      y
+      {:keys [desc-width cell-width gutter]
+       :or {desc-width 28
+            cell-width 10
+            gutter 2}}]
+     (-> grid
+         (clear (- x gutter)
+                (+ (- y gutter) 0)
+                (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
+                (+ 3 (* 2 gutter)))
+         (text-box x y ["Item No."])
+         (text-box (+ x cell-width gutter) y ["Description"])
+         (text-box (+ x desc-width cell-width gutter) y ["Qty"])
+         (text-box (+ x desc-width (* 2 (+ cell-width gutter))) y ["Rate"])
+         (text-box (+ x desc-width (* 3 (+ cell-width gutter))) y ["Total"]))))
+
 (defn table
   ([grid x y data] (table grid x y data {}))
   ([grid
@@ -140,7 +180,7 @@
      :as table-opts}]
    (reduce
     (fn [g v]
-      (let [y-off (:y-offset v)
+      (let [y-off (+ (:y-offset v) 3)
             desc (:description v)]
         (-> g
             (clear (- x gutter)
@@ -160,7 +200,7 @@
             (text-box (+ x desc-width (* 3 (+ cell-width gutter)))
                       (+ y y-off)
                       (:total v)))))
-    grid
+    (make-table-headers grid x y table-opts)
     (pre-process-table data table-opts))))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
