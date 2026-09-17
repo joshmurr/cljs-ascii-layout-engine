@@ -31,8 +31,7 @@
   (text-box grid
             x
             y
-            [#_"Invoice"
-             (str-pair "Invoice #" invoice-number)
+            [(str-pair "Invoice #" invoice-number)
              (str-pair "Date" date)
              (str-pair "Due Date" due-date)]
             {:px 2
@@ -76,13 +75,30 @@
       :rate 450}
      {:description "Some materials"
       :qty 1
-      :rate 42.50}]))
+      :rate 42.50}])
+  (def table-data-2
+    {:description-0 "Write description...\n"
+     :qty-0 "12"
+     :rate-0 "120"
+     :description-1 "Some other new thing."
+     :qty-1 "2"
+     :rate-1 "33.40"}))
+
 
 (defn get-data-from-session
+  "Turns the strange FormData data format into a vector of
+  maps of the form {:description _, :qty _, :rate _}"
   []
   (let [json (.getItem js/sessionStorage "form-data")
-        data (js->clj (.parse js/JSON json) :keywordize-keys true)]
-    data))
+        data (js->clj (.parse js/JSON json))]
+    (reduce (fn [acc [k v]]
+              (let [[new-key idx-string] (str/split k #"-")
+                    idx (js/parseInt idx-string)
+                    current-item (get acc idx {})
+                    updated-item (assoc current-item (keyword new-key) v)]
+                (assoc acc (js/parseInt idx) updated-item)))
+            []
+            data)))
 
 (defn draw!
   []
@@ -97,7 +113,7 @@
                                   (.toDateString (js/Date.)))
                  (client-details 8 21)
                  (horzontal-line 2 33 (- MAX_WIDTH 3))
-                 (table 8 40 [data] {:desc-width 35})
+                 (table 8 40 data {:desc-width 35})
                  (payment-details 8 60))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
