@@ -4,10 +4,8 @@
              :as
              render
              :refer
-             [blank-grid text-box render clear box table MAX_WIDTH]]
-            [app.shader
-             :refer
-             [shader amplitude diagonal-gradient-frag hex-grid paul-ramp]]
+             [blank-grid text-box render clear table MAX_WIDTH]]
+            [app.shader :refer [shader amplitude paul-ramp]]
             [app.example.data :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))

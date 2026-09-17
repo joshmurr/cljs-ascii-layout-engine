@@ -88,16 +88,17 @@
 (defn split-text
   "Splits up a long string into a vector of multiple strings
   no longer than line-len."
-  [words line-len]
-  (reduce (fn [acc word]
-            (let [current-line-len (count (last acc))]
-              (if (>= (+ current-line-len (count word)) line-len)
-                (conj acc word)
-                (assoc acc
-                       (dec (count acc))
-                       (str/trim (str/join " " [(last acc) word]))))))
-          [""]
-          (str/split words #" ")))
+  ([words line-len] (split-text words line-len #" "))
+  ([words line-len splitter]
+   (reduce (fn [acc word]
+             (let [current-line-len (count (last acc))]
+               (if (>= (+ current-line-len (count word)) line-len)
+                 (conj acc word)
+                 (assoc acc
+                        (dec (count acc))
+                        (str/trim (str/join " " [(last acc) word]))))))
+           [""]
+           (str/split words splitter))))
 
 (defn format-qty
   ([v] (format-qty v 8))
