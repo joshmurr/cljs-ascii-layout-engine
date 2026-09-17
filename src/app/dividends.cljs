@@ -38,10 +38,25 @@
    "" "Director and Chair of the Meeting"
    "" "Date: $date-of-meeting"))
 
-(defn board-minutes!
-  []
+(def dividend-voucher-str
+  (long-str
+   "Dividend Voucher"
+   "$company-name LIMITED" "Company Number: $company-number"
+   "Registered Office: $registered-address" ""
+   "Voucher Number: $voucher-number" "Date of Payment: $payment-date"
+   "Shareholder: $full-name" "Shareholder Address: $registered-address"
+   "Shareholding: $number Ordinary £1 shares"
+   "Dividend per share: £$amount-per-share"
+   "Total dividend paid: £$total-amount" ""
+   "This interim dividend was declared by resolution of the Board of Directors on $date-of-meeting."
+   ""
+   "Signed: $full-name" ""
+   "Director" "Date: $date-of-meeting"))
+
+(defn draw!
+  [string-to-run]
   (let [text-content (replace-several
-                      board-minutes-str
+                      string-to-run
                       "$company-name" (:name data/company)
                       "$company-number" (:number data/company)
                       "$registered-address"
@@ -51,7 +66,10 @@
                       "$time-of-meeting" (.toTimeString (js/Date.))
                       "$amount" "0.01"
                       "$payment-date" (.toDateString (js/Date.))
-                      "$total-amount" "0.01")
+                      "$total-amount" "0.01"
+                      "$amount-per-share" "0.01"
+                      "$number" "1"
+                      "$voucher-number" "80808080")
         grid (-> (blank-grid)
                  (shader diagonal-gradient-frag paul-ramp)
                  (text-box 6
@@ -61,4 +79,8 @@
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
-(defn ^:export init [] (board-minutes!))
+(defn ^:export init
+  []
+  (if (.includes (.-href (.-location js/window)) "board-minutes.html")
+    (draw! board-minutes-str)
+    (draw! dividend-voucher-str)))
