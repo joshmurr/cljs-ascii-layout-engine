@@ -1,0 +1,35 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #000;
+}
+
+form {
+  display: table;
+  div {
+    display: table-row;
+  }
+  label,
+  input {
+    display: table-cell;
+    margin-bottom: 10px;
+  }
+
+  label {
+    padding-right: 10px;
+  }
+}
+
+pre#screen {
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+  font-style: normal;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  line-height: 1.1;
+  white-space: pre;
+  letter-spacing: 0;
+}
