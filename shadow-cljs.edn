@@ -1,13 +1,16 @@
 {:builds
  {:app {:asset-path "/js"
         :devtools {:reload-strategy :full}
-        :modules {:invoice {:depends-on #{:shared}
+        :modules {:dividends {:depends-on #{:shared}
+                              :entries [app.dividends]
+                              :init-fn app.dividends/init}
+                  :invoice {:depends-on #{:shared}
                             :entries [app.invoice]
                             :init-fn app.invoice/init}
                   :main {:depends-on #{:shared}
                          :entries [app.core]
                          :init-fn app.core/init}
-                  :shared {:entries []}}
+                  :shared {:entries [app.example.data]}}
         :output-dir "public/js"
         :target :browser}}
  :dependencies []

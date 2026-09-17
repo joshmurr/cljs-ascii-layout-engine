@@ -1,7 +1,8 @@
 (ns app.example.data)
 
 (def company
-  {:name "Acme, Inc."
+  {:director "The King"
+   :name "Acme, Inc."
    :address {:street "123 Main St."
              :city "Anytown"
              :state "CA"
