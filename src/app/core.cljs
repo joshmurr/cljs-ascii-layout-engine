@@ -4,9 +4,6 @@
 
 (defn create-key [prefix idx] (str prefix "-" idx))
 
-(comment
-  (create-key "hi" 1))
-
 (defn create-el
   ([tag] (create-el tag nil))
   ([tag children]
@@ -59,15 +56,20 @@
   (let [form (.querySelector js/document "form")
         submit-button-wrapper (.-parentNode (.querySelector js/document
                                                             "[type=submit]"))
-        add-button (.querySelector js/document "button")]
-    (.addEventListener
-     add-button
-     "click"
-     (fn []
-       (doto form
-         (.insertBefore (create-description-el 1) submit-button-wrapper)
-         (.insertBefore (create-quantity-el 1) submit-button-wrapper)
-         (.insertBefore (create-rate-el 1) submit-button-wrapper))))
+        add-button (.querySelector js/document "button")
+        line-item-count (atom 1)]
+    (.addEventListener add-button
+                       "click"
+                       (fn []
+                         (doto form
+                           (.insertBefore (create-description-el
+                                           @line-item-count)
+                                          submit-button-wrapper)
+                           (.insertBefore (create-quantity-el @line-item-count)
+                                          submit-button-wrapper)
+                           (.insertBefore (create-rate-el @line-item-count)
+                                          submit-button-wrapper))
+                         (swap! line-item-count inc)))
     (doto form
       (.addEventListener "submit"
                          (fn [e] (.preventDefault e) (js/FormData. form)))

@@ -58,23 +58,6 @@
              (str-pair "IBAN" (:iban payment) ": ")]
             default-opts))
 
-(comment
-  (def table-data
-    [{:description
-      "22 days work but actually I did loads of stuff which I am going to mention that I did it but I don't have time to go into it now."
-      :qty 23
-      :rate 450}
-     {:description "Some materials"
-      :qty 1
-      :rate 42.50}])
-  (def table-data-2
-    {:description-0 "Write description...\n"
-     :qty-0 "12"
-     :rate-0 "120"
-     :description-1 "Some other new thing."
-     :qty-1 "2"
-     :rate-1 "33.40"}))
-
 
 (defn get-data-from-session
   "Turns the strange FormData data format into a vector of
@@ -90,10 +73,6 @@
                 (assoc acc (js/parseInt idx) updated-item)))
             []
             data)))
-
-(comment
-  (def thing {:f (fn [] 10)})
-  ((:f thing)))
 
 (defn draw!
   []
