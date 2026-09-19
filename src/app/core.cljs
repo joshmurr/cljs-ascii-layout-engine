@@ -75,25 +75,38 @@
                                  k (.get form-data "invoice-number")]
                              (save! (str "invoice-" k) data)
                              (set! (.-href js/location)
-                                   (str "invoice.html?invoice=" k))))))))
+                                   (str "invoice.html?id=" k))))))))
 
 (defn init-dividends-form
   []
-  (let [form (.getElementById js/document "dividends-form")]
+  (let [form (.getElementById js/document "dividends-form")
+        dividends-btn (.getElementById js/document "dividends-btn")
+        board-voucher-btn (.getElementById js/document "board-btn")
+        voucher-number-input (.getElementById js/document "voucher-number")]
+    (.addEventListener dividends-btn
+                       "click"
+                       (fn []
+                         (set! (.-href js/location)
+                               (str "dividend-voucher.html?id="
+                                    (.-value voucher-number-input)))))
+    (.addEventListener board-voucher-btn
+                       "click"
+                       (fn []
+                         (set! (.-href js/location)
+                               (str "board-minutes.html?id="
+                                    (.-value voucher-number-input)))))
     (doto form
       (.addEventListener "submit"
                          (fn [e] (.preventDefault e) (js/FormData. form)))
-      (.addEventListener
-       "formdata"
-       (fn [e]
-         (let [form-data (.-formData e)
-               data (line-items
-                     form-data
-                     [{:id "amount"} {:id "date-time"} {:id "voucher-number"}])
-               k (.get form-data "voucher-number")]
-           (save! (str "dividend-" k) data)
-           (set! (.-href js/location)
-                 (str "dividend-voucher.html?voucher-number=" k))))))))
+      (.addEventListener "formdata"
+                         (fn [e]
+                           (let [form-data (.-formData e)
+                                 data (line-items form-data
+                                                  [{:id "amount"}
+                                                   {:id "date-time"}
+                                                   {:id "voucher-number"}])
+                                 k (.get form-data "voucher-number")]
+                             (save! (str "dividend-" k) data)))))))
 
 (defn go [] (init-invoice-form) (init-dividends-form))
 

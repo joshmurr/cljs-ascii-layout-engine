@@ -3,7 +3,7 @@
             [app.example.data :as data]
             [app.render :refer [blank-grid text-box split-text render]]
             [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
-            [app.storage :refer [load]]))
+            [app.storage :refer [get-data]]))
 
 (defn replace-several
   "https://andersmurphy.com/2019/01/15/clojure-string-interpolation.html"
@@ -32,7 +32,7 @@
    "The Director considered the Company's cash flow requirements and ongoing liabilities, including a reserve for Corporation Tax on profits earned to date, and confirmed that payment of the proposed dividend would not prejudice the Company's ability to meet its liabilities as they fall due."
    "3. Resolution"
    "" "IT WAS RESOLVED THAT:"
-   "An interim dividend of £$amount per Ordinary £1 share be declared and paid on $payment-date to shareholders on the register at the date of this meeting, being a total distribution of £$amount."
+   "An interim dividend of $amount per Ordinary £1 share be declared and paid on $payment-date to shareholders on the register at the date of this meeting, being a total distribution of £$amount."
    ""
    "4. Close" "There being no further business, the meeting was closed."
    "" "Signed: $full-name"
@@ -57,9 +57,9 @@
 
 (defn draw!
   [string-to-run]
-  (let [url (js/URL. (.-href (.-location js/window)))
-        voucher-number (.get (.-searchParams url) "voucher-number")
-        data (first (load (str "dividend-" voucher-number)))
+  (let [data (first (get-data "dividend"))
+        date (.toLocaleDateString (js/Date. (:date-time data)))
+        time (.toLocaleTimeString (js/Date. (:date-time data)))
         text-content (replace-several
                       string-to-run
                       "$company-name" (:name data/company)
@@ -67,14 +67,14 @@
                       "$registered-address"
                       (str/join ", " (vals (:address data/company)))
                       "$full-name" (:director data/company)
-                      "$date-of-meeting" (:date-time data)
-                      "$time-of-meeting" (:date-time data)
+                      "$date-of-meeting" date
+                      "$time-of-meeting" time
                       "$amount" (:amount data)
-                      "$payment-date" (.toDateString (js/Date.))
+                      "$payment-date" date
                       "$total-amount" (:amount data)
-                      "$amount-per-share" "0.01"
-                      "$number" "1"
-                      "$voucher-number" voucher-number)
+                      "$amount-per-share" "1"
+                      "$number" (:amount data)
+                      "$voucher-number" (:voucher-number data))
         grid (-> (blank-grid)
                  (shader diagonal-gradient-frag paul-ramp)
                  (text-box 6

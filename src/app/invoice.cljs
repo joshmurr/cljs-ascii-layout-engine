@@ -1,6 +1,6 @@
 (ns app.invoice
   (:require [clojure.string :as str]
-            [app.storage :refer [load]]
+            [app.storage :refer [get-data]]
             [app.render
              :as
              render
@@ -61,7 +61,7 @@
 
 (defn draw!
   []
-  (let [data (load "invoice-33")
+  (let [data (get-data "invoice")
         grid (-> (blank-grid)
                  (shader amplitude paul-ramp)
                  (company-details 11 7)
