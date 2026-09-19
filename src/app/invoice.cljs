@@ -59,25 +59,9 @@
              (str-pair "IBAN" (:iban payment) ": ")]
             default-opts))
 
-
-(defn get-data-from-session
-  "Turns the strange FormData data format into a vector of
-  maps of the form {:description _, :qty _, :rate _}"
-  []
-  (let [json (.getItem js/sessionStorage "form-data")
-        data (js->clj (.parse js/JSON json))]
-    (reduce (fn [acc [k v]]
-              (let [[new-key idx-string] (str/split k #"-")
-                    idx (js/parseInt idx-string)
-                    current-item (get acc idx {})
-                    updated-item (assoc current-item (keyword new-key) v)]
-                (assoc acc (js/parseInt idx) updated-item)))
-            []
-            data)))
-
 (defn draw!
   []
-  (let [data (get-data-from-session)
+  (let [data (load "invoice-33")
         grid (-> (blank-grid)
                  (shader amplitude paul-ramp)
                  (company-details 11 7)
