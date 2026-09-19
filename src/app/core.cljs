@@ -19,6 +19,8 @@
     :attrs {:type "number"
             :step 0.1}}])
 
+(def dividend-fields [{:id "amount"} {:id "date-time"} {:id "voucher-number"}])
+
 (defn create-key [prefix idx] (str prefix "-" idx))
 
 (defn ->node [n] (if (string? n) (.createTextNode js/document n) n))
@@ -77,6 +79,17 @@
                              (set! (.-href js/location)
                                    (str "invoice.html?id=" k))))))))
 
+#_(defn create-link-btn
+    [id href]
+    (let [btn (.getElementById js/document id)]
+      (.addEventListener btn "click" (fn [] (set! (.-href js/location) href)))))
+
+#_(defn build-url-from-base
+    [pathname params]
+    (let [url (js/URL. (.-location js/window))]
+      (str (.-origin url) pathname "?" (js/URLSearchParams. (clj->js params)))))
+
+
 (defn init-dividends-form
   []
   (let [form (.getElementById js/document "dividends-form")
@@ -101,10 +114,7 @@
       (.addEventListener "formdata"
                          (fn [e]
                            (let [form-data (.-formData e)
-                                 data (line-items form-data
-                                                  [{:id "amount"}
-                                                   {:id "date-time"}
-                                                   {:id "voucher-number"}])
+                                 data (line-items form-data dividend-fields)
                                  k (.get form-data "voucher-number")]
                              (save! (str "dividend-" k) data)))))))
 
