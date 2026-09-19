@@ -4,52 +4,46 @@
 
 (defn create-key [prefix idx] (str prefix "-" idx))
 
+(defn ->node [n] (if (string? n) (.createTextNode js/document n) n))
+
 (defn create-el
-  ([tag] (create-el tag nil))
-  ([tag children]
+  ([tag] (create-el tag nil nil))
+  ([tag attrs] (create-el tag attrs nil))
+  ([tag attrs children]
    (let [el (.createElement js/document tag)]
-     (if (nil? children) el (doto el (.appendChild children))))))
+     (doseq [[k v] attrs] (.setAttribute el (name k) (str v)))
+     (doseq [child children] (.appendChild el (->node child)))
+     el)))
 
-(defn create-description-el
-  [index]
-  (let [k (create-key "description" index)
-        label (doto (create-el "label")
-                (.setAttribute "for" k)
-                (#(set! (.-innerText %1) "Description:")))
-        input (doto (create-el "textarea")
-                (.setAttribute "name" k)
-                (.setAttribute "id" k)
-                (.setAttribute "rows" "8")
-                (.setAttribute "cols" "23"))
-        div (doto (create-el "div") (.appendChild label) (.appendChild input))]
-    div))
+(def line-item-fields
+  [{:id "description"
+    :label "Description:"
+    :tag "textarea"
+    :attrs {:rows 8
+            :cols 23}}
+   {:id "qty"
+    :label "Quantity:"
+    :tag "input"
+    :attrs {:type "number"}}
+   {:id "rate"
+    :label "Rate:"
+    :tag "input"
+    :attrs {:type "number"
+            :step 0.1}}])
 
-(defn create-quantity-el
-  [index]
-  (let [k (create-key "qty" index)
-        label (doto (create-el "label")
-                (.setAttribute "for" k)
-                (#(set! (.-innerText %1) "Quantity:")))
-        input (doto (create-el "input")
-                (.setAttribute "type" "number")
-                (.setAttribute "name" k)
-                (.setAttribute "id" k))
-        div (doto (create-el "div") (.appendChild label) (.appendChild input))]
-    div))
 
-(defn create-rate-el
-  [index]
-  (let [k (create-key "rate" index)
-        label (doto (create-el "label")
-                (.setAttribute "for" k)
-                (#(set! (.-innerText %1) "Rate:")))
-        input (doto (create-el "input")
-                (.setAttribute "type" "number")
-                (.setAttribute "name" k)
-                (.setAttribute "id" k)
-                (.setAttribute "step" "0.1"))
-        div (doto (create-el "div") (.appendChild label) (.appendChild input))]
-    div))
+(defn create-field
+  [index {:keys [id label tag attrs]}]
+  (let [k (create-key id index)]
+    (create-el "div"
+               nil
+               [(create-el "label" {:for k} [label])
+                (create-el tag
+                           (merge {:name k
+                                   :id k}
+                                  attrs))])))
+
+(defn create-line-item [index] (map #(create-field index %) line-item-fields))
 
 (defn go
   []
@@ -61,14 +55,8 @@
     (.addEventListener add-button
                        "click"
                        (fn []
-                         (doto form
-                           (.insertBefore (create-description-el
-                                           @line-item-count)
-                                          submit-button-wrapper)
-                           (.insertBefore (create-quantity-el @line-item-count)
-                                          submit-button-wrapper)
-                           (.insertBefore (create-rate-el @line-item-count)
-                                          submit-button-wrapper))
+                         (doseq [el (create-line-item @line-item-count)]
+                           (.insertBefore form el submit-button-wrapper))
                          (swap! line-item-count inc)))
     (doto form
       (.addEventListener "submit"
