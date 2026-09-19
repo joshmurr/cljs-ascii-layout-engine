@@ -38,3 +38,9 @@ pre#screen {
   white-space: pre;
   letter-spacing: 0;
 }
+
+@media print {
+  nav {
+    display: none !important;
+  }
+}
