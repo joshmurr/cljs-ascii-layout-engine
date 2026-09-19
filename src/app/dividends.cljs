@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [app.example.data :as data]
             [app.render :refer [blank-grid text-box split-text render]]
-            [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]))
+            [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
+            [app.storage :refer [load]]))
 
 (defn replace-several
   "https://andersmurphy.com/2019/01/15/clojure-string-interpolation.html"
@@ -46,7 +47,8 @@
    "Voucher Number: $voucher-number" "Date of Payment: $payment-date"
    "Shareholder: $full-name" "Shareholder Address: $registered-address"
    "Shareholding: $number Ordinary £1 shares"
-   "Dividend per share: £$amount-per-share"
+   "Dividend per share: £$amount-per-share" ; TODO: It's matching on
+                                            ; 'amount' here
    "Total dividend paid: £$total-amount" ""
    "This interim dividend was declared by resolution of the Board of Directors on $date-of-meeting."
    ""
@@ -55,21 +57,24 @@
 
 (defn draw!
   [string-to-run]
-  (let [text-content (replace-several
+  (let [url (js/URL. (.-href (.-location js/window)))
+        voucher-number (.get (.-searchParams url) "voucher-number")
+        data (first (load (str "dividend-" voucher-number)))
+        text-content (replace-several
                       string-to-run
                       "$company-name" (:name data/company)
                       "$company-number" (:number data/company)
                       "$registered-address"
                       (str/join ", " (vals (:address data/company)))
                       "$full-name" (:director data/company)
-                      "$date-of-meeting" (.toDateString (js/Date.))
-                      "$time-of-meeting" (.toTimeString (js/Date.))
-                      "$amount" "0.01"
+                      "$date-of-meeting" (:date-time data)
+                      "$time-of-meeting" (:date-time data)
+                      "$amount" (:amount data)
                       "$payment-date" (.toDateString (js/Date.))
-                      "$total-amount" "0.01"
+                      "$total-amount" (:amount data)
                       "$amount-per-share" "0.01"
                       "$number" "1"
-                      "$voucher-number" "80808080")
+                      "$voucher-number" voucher-number)
         grid (-> (blank-grid)
                  (shader diagonal-gradient-frag paul-ramp)
                  (text-box 6

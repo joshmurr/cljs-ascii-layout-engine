@@ -6,6 +6,11 @@ body {
   color: #000;
 }
 
+section {
+  background-color: #eee;
+  margin-bottom: 20px;
+}
+
 form {
   display: table;
   div {

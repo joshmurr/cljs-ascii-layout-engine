@@ -13,45 +13,77 @@
   </head>
   <body>
     <h1>Invoice</h1>
-    <form action="" method="post" id="invoice-form">
-      <div>
-        <label for="invoice-number">Invoice Number:</label>
-        <input
-          type="number"
-          name="invoice-number"
-          id="invoice-number"
-          step="1"
-          required
-        />
-      </div>
-      <div>
-        <label for="description-0">Description:</label>
-        <textarea
-          name="description"
-          id="description-0"
-          rows="8"
-          cols="23"
-          required
-        >
-Write description...
-          </textarea>
-      </div>
-      <div>
-        <label for="qty-0">Quantity:</label>
-        <input type="number" name="qty" id="qty-0" required />
-      </div>
-      <div>
-        <label for="rate-0">Rate:</label>
-        <input type="number" name="rate" id="rate-0" step="0.01" required />
-      </div>
-      <div>
-        <input type="submit" value="Invoice!" />
-      </div>
-    </form>
+    <section>
+      <form action="" method="post" id="invoice-form">
+        <div>
+          <label for="invoice-number">Invoice Number:</label>
+          <input
+            type="number"
+            name="invoice-number"
+            id="invoice-number"
+            step="1"
+            required
+          />
+        </div>
+        <div>
+          <label for="description-0">Description:</label>
+          <textarea
+            name="description"
+            id="description-0"
+            rows="8"
+            cols="23"
+            required
+          >
+Write description...</textarea>
+        </div>
+        <div>
+          <label for="qty-0">Quantity:</label>
+          <input type="number" name="qty" id="qty-0" required />
+        </div>
+        <div>
+          <label for="rate-0">Rate:</label>
+          <input type="number" name="rate" id="rate-0" step="0.01" required />
+        </div>
+        <div>
+          <input type="submit" value="Invoice!" />
+        </div>
+      </form>
 
-    <button id="add-line-item">Add line item</button>
+      <button id="add-line-item">Add line item</button>
+    </section>
 
-    <form action="" method="post" id="dividends-form"></form>
+    <section>
+      <form action="" method="post" id="dividends-form">
+        <div>
+          <label for="voucher-number">Voucher Number:</label>
+          <input
+            type="text"
+            name="voucher-number"
+            id="voucher-number"
+            required
+          />
+        </div>
+        <div>
+          <label for="date-time">Datetime:</label>
+          <input
+            type="datetime-local"
+            name="date-time"
+            id="date-time"
+            required
+          />
+        </div>
+        <div>
+          <label for="amount">Amount:</label>
+          <input type="number" name="amount" id="amount" step="0.01" required />
+        </div>
+        <div>
+          <input type="submit" value="Dividend voucher!" />
+        </div>
+        <div>
+          <input type="submit" value="Board minutes!" />
+        </div>
+      </form>
+    </section>
 
     <a href="/board-minutes.html">Board minutes</a>
     <a href="/dividend-voucher.html">Dividend voucher</a>
