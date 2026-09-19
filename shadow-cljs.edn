@@ -10,7 +10,7 @@
                   :main {:depends-on #{:shared}
                          :entries [app.core]
                          :init-fn app.core/init}
-                  :shared {:entries [app.example.data]}}
+                  :shared {:entries [app.example.data app.storage]}}
         :output-dir "public/js"
         :target :browser}}
  :dependencies []

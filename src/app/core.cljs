@@ -1,4 +1,5 @@
-(ns app.core)
+(ns app.core
+  (:require [app.storage :refer [save!]]))
 
 (enable-console-print!)
 
@@ -39,11 +40,18 @@
                nil
                [(create-el "label" {:for k} [label])
                 (create-el tag
-                           (merge {:name k
+                           (merge {:name id
                                    :id k}
                                   attrs))])))
 
 (defn create-line-item [index] (map #(create-field index %) line-item-fields))
+
+
+(defn line-items
+  [form-data]
+  (let [ks (map (comp keyword :id) line-item-fields)
+        columns (map #(vec (.getAll form-data (:id %))) line-item-fields)]
+    (apply mapv (fn [& vs] (zipmap ks vs)) columns)))
 
 (defn go
   []
@@ -61,12 +69,11 @@
     (doto form
       (.addEventListener "submit"
                          (fn [e] (.preventDefault e) (js/FormData. form)))
-      (.addEventListener
-       "formdata"
-       (fn [e]
-         (let [data (.-formData e)
-               json (.stringify js/JSON (.fromEntries js/Object data))]
-           (.setItem js/sessionStorage "form-data" json))
-         (set! (.-href js/location) "invoice.html"))))))
+      (.addEventListener "formdata"
+                         (fn [e]
+                           (let [form-data (.-formData e)
+                                 data (line-items form-data)
+                                 k (.get form-data "invoice-number")]
+                             (save! (str "invoice-" k) data)))))))
 
 (defn ^:export init [] (go))

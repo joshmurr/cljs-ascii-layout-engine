@@ -1,5 +1,6 @@
 (ns app.invoice
   (:require [clojure.string :as str]
+            [app.storage :refer [load]]
             [app.render
              :as
              render
