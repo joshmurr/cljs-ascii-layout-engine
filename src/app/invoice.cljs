@@ -15,7 +15,7 @@
   {:px 2
    :py 1
    :mx 4
-   :my 3
+   :my 2
    :border true})
 
 (defn company-details
@@ -73,7 +73,11 @@
                  (client-details 11 27)
                  #_(horzontal-line 2 33 (- MAX_WIDTH 3))
                  (clear 4 40 (- MAX_WIDTH 8) 15)
-                 (table 8 43 data {:desc-width 32})
+                 (table 8
+                        43
+                        data
+                        {:desc-width 32
+                         :gutter 1})
                  (payment-details 56 62))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))

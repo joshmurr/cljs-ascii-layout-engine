@@ -102,11 +102,12 @@
 
 (defn format-qty
   ([v] (format-qty v 8))
-  ([v pad] (.padStart (.toString v) pad " ")))
+  ([v pad] (.padEnd (.toString v) pad " ")))
 
 (defn format-money
   ([v] (format-money v 8))
-  ([v pad] (.padStart (.toString (.toFixed (js/parseFloat v) 2)) pad " ")))
+  ([v pad]
+   (.padStart (str "$" (.toString (.toFixed (js/parseFloat v) 2))) pad " ")))
 
 (defn pre-process-table
   ([data] (pre-process-table data {}))
@@ -203,5 +204,30 @@
                       (:total v)))))
     (make-table-headers grid x y table-opts)
     (pre-process-table data table-opts))))
+
+(comment
+  (def sample
+    [{:description "This was some serious stuff."
+      :qty "3"
+      :rate "350"}
+     {:description "It took me ages"
+      :qty "3"
+      :rate "100"}
+     {:description
+      "It took me ages lorem ipsum dolor sit amet consectetur adipiscing elit."
+      :qty "5"
+      :rate "300"}
+     {:description "I'm being cereal."
+      :qty "4"
+      :rate "19.50"}])
+  (pre-process-table sample)
+  (map (fn [item]
+         (str/join " "
+                   (reduce-kv
+                    (fn [g _ v]
+                      (if (vector? v) (into [] (concat g [(first v)])) g))
+                    ""
+                    item)))
+       (pre-process-table sample)))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
