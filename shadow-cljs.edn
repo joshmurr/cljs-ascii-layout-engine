@@ -1,5 +1,6 @@
 {:builds
  {:app {:asset-path "/js"
+        :build-hooks [(build.pages/emit)]
         :devtools {:reload-strategy :full}
         :modules {:dividends {:depends-on #{:shared}
                               :entries [app.dividends]
@@ -13,6 +14,6 @@
                   :shared {:entries [app.example.data app.storage]}}
         :output-dir "public/js"
         :target :browser}}
- :dependencies []
+ :dependencies [[hiccup "2.0.0"]]
  :dev-http {8080 "public"}
  :source-paths ["src"]}
