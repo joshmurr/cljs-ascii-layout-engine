@@ -4,5 +4,6 @@
 .shadow-cljs/
 package-lock.json
 node_modules/
+public/*.html
 public/js/
 src/app/data.cljs
