@@ -63,7 +63,7 @@
 (defn dividend-form
   []
   [:form
-   {:id "invoice-form"
+   {:id "dividend-form"
     :action ""
     :method "POST"}
    [:div
@@ -99,7 +99,19 @@
      [:section
       (dividend-form)
       [:button {:id "dividends-btn"} "Dividends!"]
-      [:button {:id "board-btn"} "Board minutes!"]]]}])
+      [:button {:id "board-btn"} "Board minutes!"]]]}
+   {:file "invoice.html"
+    :title "Invoice"
+    :modules ["invoice"]
+    :body [:main [:pre#screen "invoice"]]}
+   {:file "dividend-voucher.html"
+    :title "Dividends voucher"
+    :modules ["dividends"]
+    :body [:main [:pre#screen "dividends-voucher"]]}
+   {:file "board-minutes.html"
+    :title "Board minutes"
+    :modules ["dividends"]
+    :body [:main [:pre#screen "board-minutes"]]}])
 
 (defn nav
   []
