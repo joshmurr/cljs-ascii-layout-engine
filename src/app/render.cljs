@@ -90,19 +90,21 @@
   no longer than line-len."
   ([words line-len] (split-text words line-len #" "))
   ([words line-len splitter]
-   (reduce (fn [acc word]
-             (let [current-line-len (count (last acc))]
-               (if (>= (+ current-line-len (count word)) line-len)
-                 (conj acc word)
-                 (assoc acc
-                        (dec (count acc))
-                        (str/trim (str/join " " [(last acc) word]))))))
-           [""]
-           (str/split words splitter))))
+   (mapv (fn [line] (.padEnd line line-len " "))
+         (reduce (fn [acc word]
+                   (let [last-line (last acc)
+                         current-line-len (count last-line)]
+                     (if (>= (+ current-line-len (count word)) line-len)
+                       (conj acc word) ; New line
+                       (assoc acc
+                              (dec (count acc))
+                              (str/trim (str/join " " [(last acc) word]))))))
+                 [""]
+                 (str/split words splitter)))))
 
 (defn format-qty
   ([v] (format-qty v 8))
-  ([v pad] (.padEnd (.toString v) pad " ")))
+  ([v pad] (.padStart (.toString v) pad " ")))
 
 (defn format-money
   ([v] (format-money v 8))
@@ -205,6 +207,33 @@
     (make-table-headers grid x y table-opts)
     (pre-process-table data table-opts))))
 
+(def config
+  {:description 28
+   :cell-width 10})
+
+(defn create-line
+  [item order idx]
+  (str/join " "
+            (map
+             (fn [k]
+               (let [v (get-in item [k idx])
+                     w (or (get config k) 10)]
+                 (if (nil? v) (str/join "" (repeat w " ")) (.padEnd v w " "))))
+             order)))
+
+(defn table-2
+  [unprocessed]
+  (flatten (map (fn [line-item]
+                  (reduce (fn [acc [idx]]
+                            (let [line (create-line
+                                        line-item
+                                        [:key :description :qty :rate :total]
+                                        idx)]
+                              (conj acc line)))
+                          []
+                          (map-indexed vector (get line-item :description))))
+                (pre-process-table unprocessed))))
+
 (comment
   (def sample
     [{:description "This was some serious stuff."
@@ -220,14 +249,59 @@
      {:description "I'm being cereal."
       :qty "4"
       :rate "19.50"}])
+  (def processed
+    [{:description ["This was some serious stuff."]
+      :qty ["         3"]
+      :rate ["   $350.00"]
+      :key ["         1"]
+      :total ["  $1050.00"]
+      :y-offset 0}
+     {:description ["It took me ages             "]
+      :qty ["         3"]
+      :rate ["   $100.00"]
+      :key ["         2"]
+      :total ["   $300.00"]
+      :y-offset 4}
+     {:description ["It took me ages lorem ipsum "
+                    "dolor sit amet consectetur  "
+                    "adipiscing elit.            "]
+      :qty ["         5"]
+      :rate ["   $300.00"]
+      :key ["         3"]
+      :total ["  $1500.00"]
+      :y-offset 7}
+     {:description ["I'm being cereal.           "]
+      :qty ["         4"]
+      :rate ["    $19.50"]
+      :key ["         4"]
+      :total ["    $78.00"]
+      :y-offset 12}])
   (pre-process-table sample)
-  (map (fn [item]
-         (str/join " "
-                   (reduce-kv
-                    (fn [g _ v]
-                      (if (vector? v) (into [] (concat g [(first v)])) g))
-                    ""
-                    item)))
-       (pre-process-table sample)))
+  (create-line {:description ["This was some serious stuff."]}
+               [:key :description]
+               0)
+  ;;
+  (def output
+    (flatten (map (fn [line-item]
+                    (reduce (fn [acc [idx v]]
+                              (let [line (create-line
+                                          line-item
+                                          [:key :description :qty :rate :total]
+                                          idx)]
+                                (conj acc line)))
+                            []
+                            (map-indexed vector (get line-item :description))))
+                  processed)))
+  (blank-grid 10 10)
+  (render (text-box (blank-grid 100 10) 0 0 output))
+  (render (text-box (blank-grid 100 10) 0 0 ["hello this is some text"]))
+  #_(map (fn [item]
+           (str/join "_"
+                     (reduce
+                      (fn [g [_ v]]
+                        (if (vector? v) (into [] (concat g [(first v)])) g))
+                      ""
+                      item)))
+         (pre-process-table sample)))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))

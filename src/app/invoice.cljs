@@ -1,13 +1,16 @@
 (ns app.invoice
-  (:require [clojure.string :as str]
-            [app.storage :refer [get-data]]
-            [app.render
-             :as
-             render
-             :refer
-             [blank-grid text-box render clear table MAX_WIDTH]]
-            [app.shader :refer [shader amplitude paul-ramp]]
-            [app.example.data :refer [client payment company]]))
+  (:require
+    [clojure.string :as str]
+    [app.storage :refer [get-data]]
+    [app.render
+     :as
+     render
+     :refer
+     [blank-grid text-box render clear table table-2 MAX_WIDTH]]
+    [app.shader
+     :refer
+     [shader amplitude ramp arrow-ramp block-ramp paul-ramp braile-ramp]]
+    [app.example.data :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 
@@ -63,7 +66,7 @@
   []
   (let [data (get-data "invoice")
         grid (-> (blank-grid)
-                 (shader amplitude paul-ramp)
+                 (shader amplitude block-ramp)
                  (company-details 11 7)
                  (invoice-details 61
                                   7
@@ -71,14 +74,19 @@
                                   (.toDateString (js/Date.))
                                   (.toDateString (js/Date.)))
                  (client-details 11 27)
+                 (payment-details 56 27)
                  #_(horzontal-line 2 33 (- MAX_WIDTH 3))
-                 (clear 4 40 (- MAX_WIDTH 8) 15)
-                 (table 8
-                        43
-                        data
-                        {:desc-width 32
-                         :gutter 1})
-                 (payment-details 56 62))]
+                 #_(clear 4 40 (- MAX_WIDTH 8) 15)
+                 #_(table 8
+                          43
+                          data
+                          {:desc-width 32
+                           :gutter 1})
+                 (text-box 8
+                           43
+                           (table-2 data)
+                           {:my 3
+                            :mx 2}))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
