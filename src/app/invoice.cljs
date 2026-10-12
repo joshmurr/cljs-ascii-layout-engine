@@ -2,11 +2,7 @@
   (:require
     [clojure.string :as str]
     [app.storage :refer [get-data]]
-    [app.render
-     :as
-     render
-     :refer
-     [blank-grid text-box render clear table table-2 MAX_WIDTH]]
+    [app.render :as render :refer [blank-grid text-box render table-2]]
     [app.shader
      :refer
      [shader amplitude ramp arrow-ramp block-ramp paul-ramp braile-ramp]]
@@ -84,9 +80,16 @@
                            :gutter 1})
                  (text-box 8
                            43
-                           (table-2 data)
+                           (table-2 data
+                                    [{:item-key :key}
+                                     {:item-key :description
+                                      :width 20}
+                                     {:item-key :qty}
+                                     {:item-key :rate}
+                                     {:item-key :total}])
                            {:my 3
                             :mx 2}))]
+    (print data)
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 

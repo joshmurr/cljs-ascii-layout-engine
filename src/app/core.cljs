@@ -75,9 +75,10 @@
                            (let [form-data (.-formData e)
                                  data (line-items form-data line-item-fields)
                                  k (.get form-data "invoice-number")]
+                             (println data)
                              (save! (str "invoice-" k) data)
-                             (set! (.-href js/location)
-                                   (str "invoice.html?id=" k))))))))
+                             #_(set! (.-href js/location)
+                                     (str "invoice.html?id=" k))))))))
 
 #_(defn create-link-btn
     [id href]

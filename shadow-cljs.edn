@@ -1,7 +1,8 @@
 {:builds
  {:app {:asset-path "/js"
         :build-hooks [(build.pages/emit)]
-        :devtools {:reload-strategy :full}
+        :devtools {:autoload false
+                   :reload-strategy :full}
         :modules {:dividends {:depends-on #{:shared}
                               :entries [app.dividends]
                               :init-fn app.dividends/init}
