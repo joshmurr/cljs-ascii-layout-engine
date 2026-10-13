@@ -147,13 +147,6 @@
     :item-key (fn [this] (* (:qty this) (:rate this)))
     :align "r"}])
 
-(defn cells
-  [row column-spec]
-  (mapv (fn [{:keys [item-key xform width align]}]
-          (let [pad (padder align)]
-            (mapv #(pad % width) (xform (item-key row) width))))
-        column-spec))
-
 (defn fill-in-gaps
   [row column-spec]
   (let [height (apply max (map count row))]
@@ -163,25 +156,41 @@
      row
      column-spec)))
 
-(defn make-table [items col-spec]
+(defn cells [col-spec lines-fn]
+  (mapv (fn [{:keys [width align] :as col}]
+          (let [pad (padder align)]
+            (mapv #(pad % width) (lines-fn col))))
+        col-spec))
+
+(defn row->lines [col-spec lines-fn]
+  (apply map str (fill-in-gaps (cells col-spec lines-fn) col-spec)))
+
+(defn item-lines [item]
+  (fn [{:keys [item-key xform width]}]
+    (xform (item-key item) width)))
+
+(defn header-lines [{:keys [header]}]
+  [header])
+
+(defn footer-lines [items]
+  (fn [{:keys [footer]}]
+    [(if footer (str (footer items)) "")]))
+
+(defn seperator-line [{:keys [width]}]
+  [(str/join (take width  (repeat "-")))])
+
+(defn make-table [col-spec items]
   (let [spec (normalize-spec col-spec)]
-    (mapcat (fn [item]
-              (->> (cells item spec)
-                   (#(fill-in-gaps % spec))
-                   (apply map str)))
-            items)))
+    (concat
+     (row->lines spec header-lines)
+     (row->lines spec seperator-line)
+     (mapcat #(row->lines spec (item-lines %)) items)
+     (row->lines spec seperator-line)
+     (row->lines spec (footer-lines items)))))
 
 (comment
   (make-table sample col-spec)
 
-  (table-2 sample
-           [{:item-key :description
-             :width 40
-             :xform (fn [this] (split-text this 40))}
-            {:item-key :qty}
-            {:item-key :rate}
-            ; total
-            ])
   (render (text-box (blank-grid 100 10) 0 0 ["hello this is some text"])))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))

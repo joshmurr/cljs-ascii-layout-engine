@@ -58,6 +58,9 @@
              (str-pair "IBAN" (:iban payment) ": ")]
             default-opts))
 
+(defn line-total [{:keys [qty rate]}]
+  (* qty rate))
+
 (defn draw!
   []
   (let [data (get-data "invoice")
@@ -71,34 +74,30 @@
                                   (.toDateString (js/Date.)))
                  (client-details 11 27)
                  (payment-details 56 27)
-                 #_(horzontal-line 2 33 (- MAX_WIDTH 3))
-                 #_(clear 4 40 (- MAX_WIDTH 8) 15)
-                 #_(table 8
-                          43
-                          data
-                          {:desc-width 32
-                           :gutter 1})
-                 (text-box 8
+                 (text-box 10
                            43
-                           (make-table data
-                                       [#_{:item-key :key}
-                                        {:header "Description"
-                                         :item-key :description
-                                         :width 40
-                                         :xform split-text}
-                                        {:header "Quantity"
-                                         :item-key :qty
-                                         :align :right}
-                                        {:header "Rate"
-                                         :item-key :rate
-                                         :xform format-money
-                                         :align :right}
-                                        {:header "Total"
-                                         :align :right
-                                         :xform format-money
-                                         :item-key (fn [this] (* (:qty this) (:rate this)))}])
+                           (make-table
+                            [#_{:item-key :key}
+                             {:header "Description"
+                              :footer (constantly "Grand Total")
+                              :item-key :description
+                              :width 43
+                              :xform split-text}
+                             {:header "Quantity"
+                              :item-key :qty
+                              :align :right}
+                             {:header "Rate"
+                              :item-key :rate
+                              :xform format-money
+                              :align :right}
+                             {:header "Total"
+                              :footer #(reduce + (map line-total %))
+                              :align :right
+                              :xform format-money
+                              :item-key (fn [this] (* (:qty this) (:rate this)))}]
+                            data)
                            {:my 3
-                            :mx 2}))]
+                            :mx 5}))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
