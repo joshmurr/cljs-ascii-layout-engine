@@ -36,27 +36,31 @@
           grid
           (range 1 (dec w))))
 
+(def border-plus "-|++++")
+(def border-simple "─│┌┐└┘")
+
 (defn box
-  [grid x y w h]
-  (let [x2 (+ x (dec w))
-        y2 (+ y (dec h))]
-    (-> (reduce (fn [g i]
-                  (-> g
-                      (put (+ x i) y \-)
-                      (put (+ x i) y2 \-)))
-                grid
-                (range 1 (dec w)))
-        (as-> g
-              (reduce (fn [g i]
-                        (-> g
-                            (put x (+ y i) \|)
-                            (put x2 (+ y i) \|)))
-                      g
-                      (range 1 (dec h))))
-        (put x y \+)
-        (put x2 y \+)
-        (put x y2 \+)
-        (put x2 y2 \+))))
+  ([grid x y w h] (box grid x y w h border-simple))
+  ([grid x y w h border]
+   (let [x2 (+ x (dec w))
+         y2 (+ y (dec h))]
+     (-> (reduce (fn [g i]
+                   (-> g
+                       (put (+ x i) y (nth border 0))
+                       (put (+ x i) y2 (nth border 0))))
+                 grid
+                 (range 1 (dec w)))
+         (as-> g
+           (reduce (fn [g i]
+                     (-> g
+                         (put x (+ y i) (nth border 1))
+                         (put x2 (+ y i) (nth border 1))))
+                   g
+                   (range 1 (dec h))))
+         (put x y (nth border 2))
+         (put x2 y (nth border 3))
+         (put x y2 (nth border 4))
+         (put x2 y2 (nth border 5))))))
 
 (defn text-box
   ([grid x y text] (text-box grid x y text {}))
@@ -103,9 +107,7 @@
            [""]
            (str/split words splitter))))
 
-(defn format-money
-  [v _]
-  [(str "$" (.toString (.toFixed (js/parseFloat v) 2)))])
+(defn format-money [v _] [(str "$" (.toString (.toFixed (js/parseFloat v) 2)))])
 
 (defn pad-start [s pad] (.padStart (.toString s) pad " "))
 (defn pad-end [s pad] (.padEnd (.toString s) pad " "))
@@ -150,47 +152,45 @@
 (defn fill-in-gaps
   [row column-spec]
   (let [height (apply max (map count row))]
-    (map
-     (fn [cell {:keys [width]}]
-       (take height (concat cell (repeat (space width)))))
-     row
-     column-spec)))
+    (map (fn [cell {:keys [width]}]
+           (take height (concat cell (repeat (space width)))))
+         row
+         column-spec)))
 
-(defn cells [col-spec lines-fn]
-  (mapv (fn [{:keys [width align] :as col}]
-          (let [pad (padder align)]
-            (mapv #(pad % width) (lines-fn col))))
+(defn cells
+  [col-spec lines-fn]
+  (mapv (fn [{:keys [width align]
+              :as col}]
+          (let [pad (padder align)] (mapv #(pad % width) (lines-fn col))))
         col-spec))
 
-(defn row->lines [col-spec lines-fn]
+(defn row->lines
+  [col-spec lines-fn]
   (apply map str (fill-in-gaps (cells col-spec lines-fn) col-spec)))
 
-(defn item-lines [item]
-  (fn [{:keys [item-key xform width]}]
-    (xform (item-key item) width)))
+(defn item-lines
+  [item]
+  (fn [{:keys [item-key xform width]}] (xform (item-key item) width)))
 
-(defn header-lines [{:keys [header]}]
-  [header])
+(defn header-lines [{:keys [header]}] [header])
 
-(defn footer-lines [items]
-  (fn [{:keys [footer]}]
-    [(if footer (str (footer items)) "")]))
+(defn footer-lines
+  [items]
+  (fn [{:keys [footer]}] [(if footer (str (footer items)) "")]))
 
-(defn seperator-line [{:keys [width]}]
-  [(str/join (take width  (repeat "-")))])
+(defn seperator-line [{:keys [width]}] [(str/join (take width (repeat "-")))])
 
-(defn make-table [col-spec items]
+(defn make-table
+  [col-spec items]
   (let [spec (normalize-spec col-spec)]
-    (concat
-     (row->lines spec header-lines)
-     (row->lines spec seperator-line)
-     (mapcat #(row->lines spec (item-lines %)) items)
-     (row->lines spec seperator-line)
-     (row->lines spec (footer-lines items)))))
+    (concat (row->lines spec header-lines)
+            (row->lines spec seperator-line)
+            (mapcat #(row->lines spec (item-lines %)) items)
+            (row->lines spec seperator-line)
+            (row->lines spec (footer-lines items)))))
 
 (comment
   (make-table sample col-spec)
-
   (render (text-box (blank-grid 100 10) 0 0 ["hello this is some text"])))
 
 (defn render [grid] (str/join "\n" (map str/join grid)))
