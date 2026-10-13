@@ -34,7 +34,6 @@
      (doseq [child children] (.appendChild el (->node child)))
      el)))
 
-
 (defn create-field
   [index {:keys [id label tag attrs]}]
   (let [k (create-key id index)]
@@ -75,10 +74,9 @@
                            (let [form-data (.-formData e)
                                  data (line-items form-data line-item-fields)
                                  k (.get form-data "invoice-number")]
-                             (println data)
                              (save! (str "invoice-" k) data)
-                             #_(set! (.-href js/location)
-                                     (str "invoice.html?id=" k))))))))
+                             (set! (.-href js/location)
+                                   (str "invoice.html?id=" k))))))))
 
 #_(defn create-link-btn
     [id href]
@@ -90,11 +88,10 @@
     (let [url (js/URL. (.-location js/window))]
       (str (.-origin url) pathname "?" (js/URLSearchParams. (clj->js params)))))
 
-
 (defn init-dividends-form
   []
-  (let [form (.getElementById js/document "dividends-form")
-        dividends-btn (.getElementById js/document "dividends-btn")
+  (let [form (.getElementById js/document "dividend-form")
+        dividends-btn (.getElementById js/document "dividend-btn")
         board-voucher-btn (.getElementById js/document "board-btn")
         voucher-number-input (.getElementById js/document "voucher-number")]
     (.addEventListener dividends-btn

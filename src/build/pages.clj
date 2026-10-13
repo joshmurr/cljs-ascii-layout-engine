@@ -12,7 +12,6 @@
    ["/board-minutes.html" "Board minutes"]
    ["/dividend-voucher.html" "Dividend voucher"]])
 
-
 (def line-item-fields
   [{:id "description"
     :label "Description:"
@@ -98,7 +97,7 @@
      [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
      [:section
       (dividend-form)
-      [:button {:id "dividends-btn"} "Dividends!"]
+      [:button {:id "dividend-btn"} "Dividends!"]
       [:button {:id "board-btn"} "Board minutes!"]]]}
    {:file "invoice.html"
     :title "Invoice"

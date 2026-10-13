@@ -1,12 +1,12 @@
 (ns app.invoice
   (:require
-    [clojure.string :as str]
-    [app.storage :refer [get-data]]
-    [app.render :as render :refer [blank-grid text-box render table-2]]
-    [app.shader
-     :refer
-     [shader amplitude ramp arrow-ramp block-ramp paul-ramp braile-ramp]]
-    [app.example.data :refer [client payment company]]))
+   [clojure.string :as str]
+   [app.storage :refer [get-data]]
+   [app.render :as render :refer [blank-grid text-box render make-table split-text]]
+   [app.shader
+    :refer
+    [shader amplitude ramp arrow-ramp block-ramp paul-ramp braile-ramp]]
+   [app.example.data :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 
@@ -80,18 +80,20 @@
                            :gutter 1})
                  (text-box 8
                            43
-                           (table-2 data
-                                    [{:item-key :key}
-                                     {:item-key :description
-                                      :width 20}
-                                     {:item-key :qty}
-                                     {:item-key :rate}
-                                     {:item-key :total}])
+                           (make-table data
+                                       [#_{:item-key :key}
+                                        {:item-key :description
+                                         :width 40
+                                         :xform (fn [this] (split-text this 40))}
+                                        {:item-key :qty
+                                         :align :right}
+                                        {:item-key :rate
+                                         :align :right}
+                                        {:align :right
+                                         :item-key (fn [this] (* (:qty this) (:rate this)))}])
                            {:my 3
                             :mx 2}))]
-    (print data)
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
-
 
 (defn ^:export init [] (draw!))
