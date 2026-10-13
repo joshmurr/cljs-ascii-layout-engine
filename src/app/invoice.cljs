@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [app.storage :refer [get-data]]
-   [app.render :as render :refer [blank-grid text-box render make-table split-text]]
+   [app.render :as render :refer [blank-grid text-box render make-table split-text format-money]]
    [app.shader
     :refer
     [shader amplitude ramp arrow-ramp block-ramp paul-ramp braile-ramp]]
@@ -82,14 +82,20 @@
                            43
                            (make-table data
                                        [#_{:item-key :key}
-                                        {:item-key :description
+                                        {:header "Description"
+                                         :item-key :description
                                          :width 40
-                                         :xform (fn [this] (split-text this 40))}
-                                        {:item-key :qty
+                                         :xform split-text}
+                                        {:header "Quantity"
+                                         :item-key :qty
                                          :align :right}
-                                        {:item-key :rate
+                                        {:header "Rate"
+                                         :item-key :rate
+                                         :xform format-money
                                          :align :right}
-                                        {:align :right
+                                        {:header "Total"
+                                         :align :right
+                                         :xform format-money
                                          :item-key (fn [this] (* (:qty this) (:rate this)))}])
                            {:my 3
                             :mx 2}))]

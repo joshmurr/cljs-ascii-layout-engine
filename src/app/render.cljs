@@ -103,150 +103,13 @@
            [""]
            (str/split words splitter))))
 
-(defn format-qty
-  ([v] (format-qty v 8))
-  ([v pad] (.padStart (.toString v) pad " ")))
-
 (defn format-money
-  ([v] (format-money v 8))
-  ([v pad]
-   (.padStart (str "$" (.toString (.toFixed (js/parseFloat v) 2))) pad " ")))
+  [v _]
+  [(str "$" (.toString (.toFixed (js/parseFloat v) 2)))])
 
 (defn pad-start [s pad] (.padStart (.toString s) pad " "))
 (defn pad-end [s pad] (.padEnd (.toString s) pad " "))
 (defn padder [align] (if (= align :right) pad-start pad-end))
-
-(defn pre-process-table
-  ([data] (pre-process-table data []))
-  ([data
-    {:keys [desc-width]
-     :or {desc-width 28}}]
-   (reduce-kv
-    (fn [acc i item]
-      (conj acc
-            (assoc item
-                   :key [i]
-                   :description (split-text (:description item) desc-width)
-                   :qty [(:qty item)]
-                   :rate [(:rate item)]
-                   :total [(* (:qty item) (:rate item))]
-                   :y-offset (+ (* i 3) (count (:description (last acc)))))))
-    []
-    data)))
-
-(defn make-table-headers
-  ([grid x y] (make-table-headers grid x y {}))
-  ([grid
-    x
-    y
-    {:keys [desc-width cell-width gutter]
-     :or {desc-width 28
-          cell-width 10
-          gutter 2}}]
-   (-> grid
-       (clear (- x gutter)
-              (+ (- y gutter) 0)
-              (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
-              (+ 3 (* 2 gutter)))
-       (text-box x y ["Item No."])
-       (text-box (+ x cell-width gutter) y ["Description"])
-       (text-box (+ x desc-width cell-width gutter) y ["Qty"])
-       (text-box (+ x desc-width (* 2 (+ cell-width gutter))) y ["Rate"])
-       (text-box (+ x desc-width (* 3 (+ cell-width gutter))) y ["Total"]))))
-
-#_(defn make-table-footer
-    ([grid x y] (make-table-footer grid x y {}))
-    ([grid
-      x
-      y
-      {:keys [desc-width cell-width gutter]
-       :or {desc-width 28
-            cell-width 10
-            gutter 2}}]
-     (-> grid
-         (clear (- x gutter)
-                (+ (- y gutter) 0)
-                (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
-                (+ 3 (* 2 gutter)))
-         (text-box x y ["Item No."])
-         (text-box (+ x cell-width gutter) y ["Description"])
-         (text-box (+ x desc-width cell-width gutter) y ["Qty"])
-         (text-box (+ x desc-width (* 2 (+ cell-width gutter))) y ["Rate"])
-         (text-box (+ x desc-width (* 3 (+ cell-width gutter))) y ["Total"]))))
-
-(defn table
-  ([grid x y data] (table grid x y data {}))
-  ([grid
-    x
-    y
-    data
-    {:keys [desc-width cell-width gutter]
-     :or {desc-width 28
-          cell-width 10
-          gutter 2}
-     :as table-opts}]
-   (reduce
-    (fn [g v]
-      (let [y-off (+ (:y-offset v) 3)
-            desc (:description v)]
-        (-> g
-            (clear (- x gutter)
-                   (+ (- y gutter) y-off)
-                   (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
-                   (+ (count desc) (* 2 gutter)))
-            #_(box (- x gutter)
-                   (- y gutter)
-                   (+ gutter (* 4 cell-width) desc-width (* 4 gutter))
-                   (+ (count desc) (* 2 gutter)))
-            (text-box x (+ y y-off) (:key v))
-            (text-box (+ x cell-width gutter) (+ y y-off) desc)
-            (text-box (+ x desc-width cell-width gutter) (+ y y-off) (:qty v))
-            (text-box (+ x desc-width (* 2 (+ cell-width gutter)))
-                      (+ y y-off)
-                      (:rate v))
-            (text-box (+ x desc-width (* 3 (+ cell-width gutter)))
-                      (+ y y-off)
-                      (:total v)))))
-    (make-table-headers grid x y table-opts)
-    (pre-process-table data table-opts))))
-
-#_(def config
-    {:description 28
-     :cell-width 10})
-
-(defn create-line
-  [item idx config]
-  (str/join
-   " "
-   (map (fn [{:keys [item-key width]}]
-          (let [_v (item-key item)
-                v (get-in item [item-key idx])
-                w (or width 10)]
-            (if (nil? v) (str/join "" (repeat w " ")) (.padEnd (str v) w " "))))
-        config)))
-
-(defn table-2
-  [unprocessed config]
-  (mapcat (fn [line-item]
-            (reduce (fn [acc [idx]]
-                      (let [line (create-line line-item idx config)]
-                        (conj acc line)))
-                    []
-                    (map-indexed vector (get line-item :description))))
-          (pre-process-table unprocessed config)))
-
-(defn create-lines [line]
-  (let [n-rows (apply count line)]
-    (loop [i 0
-           ll []]
-      (when (< i n-rows)
-        (recur (inc i) (conj ll (reduce (fn [acc cell]
-                                          (let [c (if (nil? (get cell i)) (space 8) (get cell i))]
-                                            (conj acc c))) line)))))))
-
-;; ------------------------------------------------------------------------
-;; ------------------------------------------------------------------------
-;; ------------------------------------------------------------------------
 
 (def sample
   [{:description "This was some serious stuff."
@@ -309,8 +172,6 @@
             items)))
 
 (comment
-  (pre-process-table sample)
-
   (make-table sample col-spec)
 
   (table-2 sample
