@@ -1,5 +1,6 @@
 (ns build.pages
-  (:require [hiccup2.core :as h]))
+  (:require [clojure.java.io :as io]
+            [hiccup2.core :as h]))
 
 (def font-url
   (str "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@"
@@ -149,8 +150,23 @@
   [page]
   (str "<!doctype html>\n" (h/html {:mode :html} (layout page))))
 
+(defn copy-static!
+  "Copy everything under public/css into out-dir (release builds only)."
+  [out-dir]
+  (doseq [f (file-seq (io/file "public/css"))
+          :when (.isFile f)
+          :let [target (io/file out-dir (str (.relativize (.toPath (io/file "public"))
+                                                          (.toPath f))))]]
+    (io/make-parents target)
+    (io/copy f target)))
+
 (defn emit
   {:shadow.build/stage :flush}
   [build-state]
-  (doseq [p pages] (spit (str "public/" (:file p)) (render p)))
+  (let [out-dir (if (= :release (:shadow.build/mode build-state)) "dist" "public")]
+    (when (= "dist" out-dir) (copy-static! out-dir))
+    (doseq [p pages]
+      (let [f (io/file out-dir (:file p))]
+        (io/make-parents f)
+        (spit f (render p)))))
   build-state)

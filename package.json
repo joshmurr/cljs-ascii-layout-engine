@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "watch": "shadow-cljs watch app",
-    "release": "shadow-cljs release app",
+    "release": "rm -rf dist && shadow-cljs release app",
+    "deploy": "npm run release && wrangler pages deploy dist",
     "repl": "shadow-cljs cljs-repl app"
   },
   "devDependencies": {
-    "shadow-cljs": "^2.28.20"
+    "shadow-cljs": "^2.28.20",
+    "wrangler": "^4.150.0"
   }
 }
