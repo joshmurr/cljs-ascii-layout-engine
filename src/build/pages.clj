@@ -14,18 +14,18 @@
    ["/dividend-voucher.html" "Dividend voucher"]])
 
 (def line-item-fields
-  [{:id "description"
+  [{:id    "description"
     :label "Description:"
-    :tag "textarea"
+    :tag   "textarea"
     :attrs {:rows 8
             :cols 23}}
-   {:id "qty"
+   {:id    "qty"
     :label "Quantity:"
-    :tag "input"
+    :tag   "input"
     :attrs {:type "number"}}
-   {:id "rate"
+   {:id    "rate"
     :label "Rate:"
-    :tag "input"
+    :tag   "input"
     :attrs {:type "number"
             :step 0.1}}])
 
@@ -34,16 +34,16 @@
 (defn invoice-form
   []
   [:form
-   {:id "invoice-form"
+   {:id     "invoice-form"
     :action ""
     :method "POST"}
    [:div
     [:label {:for "invoice-number"} "Invoice number:"]
     [:input
-     {:type "number"
-      :name "invoice-number"
-      :id "invoice-number"
-      :step "1"
+     {:type     "number"
+      :name     "invoice-number"
+      :id       "invoice-number"
+      :step     "1"
       :required true}]]
    (map (fn [[idx item]]
           (let [k (create-key (:id item) idx)]
@@ -51,67 +51,84 @@
              [:label {:for k} (:label item)]
              [(keyword (:tag item))
               (merge {:required true
-                      :id k
-                      :name (:id item)}
+                      :id       k
+                      :name     (:id item)}
                      (:attrs item))]]))
         (map-indexed vector line-item-fields))
    [:div
     [:input
-     {:type "submit"
+     {:type  "submit"
       :value "Invoice!"}]]])
 
+;; TODO: This form has no submit button, so it is never submitted and its
+;; `formdata` handler (which saves the data) never runs. Move the
+;; "Dividends!" / "Board minutes!" buttons (see `pages` below) in here as
+;; submit buttons with a `:value` each, e.g.
+;;   [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
+;;   [:button {:type "submit" :value "board-minutes"} "Board minutes!"]
+;; The submit handler can then read `(.. e -submitter -value)` to decide
+;; where to go. This also brings back `required` validation.
+;;
+;; TODO: Add the fields the documents actually need but don't capture yet:
+;;   - number of shares (currently `$number` is filled with the amount)
+;;   - amount per share (currently hard-coded to "1")
+;;   - payment date (currently the same as the meeting date)
+;; The total dividend can then be calculated rather than entered.
 (defn dividend-form
   []
   [:form
-   {:id "dividend-form"
+   {:id     "dividend-form"
     :action ""
     :method "POST"}
    [:div
     [:label {:for "voucher-number"} "Voucher number:"]
     [:input
-     {:type "text"
-      :name "voucher-number"
-      :id "voucher-number"
+     {:type     "text"
+      :name     "voucher-number"
+      :id       "voucher-number"
       :required true}]]
    [:div
     [:label {:for "date-time"} "Datetime:"]
     [:input
-     {:type "datetime-local"
-      :name "date-time"
-      :id "date-time"
+     {:type     "datetime-local"
+      :name     "date-time"
+      :id       "date-time"
       :required true}]]
    [:div
     [:label {:for "amount"} "Amount:"]
     [:input
-     {:type "number"
-      :name "amount"
-      :id "amount"
-      :step "0.01"
+     {:type     "number"
+      :name     "amount"
+      :id       "amount"
+      :step     "0.01"
       :required true}]]])
 
 (def pages
-  [{:file "index.html"
-    :title "Home"
+  [{:file    "index.html"
+    :title   "Home"
     :modules ["main"]
     :body
     [:main
      [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
      [:section
       (dividend-form)
+      ;; TODO: These buttons are outside the form, so clicking them only
+      ;; navigates and never saves anything. Move them into
+      ;; `dividend-form` as submit buttons (see the TODO there).
       [:button {:id "dividend-btn"} "Dividends!"]
       [:button {:id "board-btn"} "Board minutes!"]]]}
-   {:file "invoice.html"
-    :title "Invoice"
+   {:file    "invoice.html"
+    :title   "Invoice"
     :modules ["invoice"]
-    :body [:main [:pre#screen "invoice"]]}
-   {:file "dividend-voucher.html"
-    :title "Dividends voucher"
+    :body    [:main [:pre#screen "invoice"]]}
+   {:file    "dividend-voucher.html"
+    :title   "Dividends voucher"
     :modules ["dividends"]
-    :body [:main [:pre#screen "dividends-voucher"]]}
-   {:file "board-minutes.html"
-    :title "Board minutes"
+    :body    [:main [:pre#screen "dividends-voucher"]]}
+   {:file    "board-minutes.html"
+    :title   "Board minutes"
     :modules ["dividends"]
-    :body [:main [:pre#screen "board-minutes"]]}])
+    :body    [:main [:pre#screen "board-minutes"]]}])
 
 (defn nav
   []
@@ -123,18 +140,18 @@
    [:meta {:charset "utf-8"}]
    [:title (if title (str "ascii-layout | " title) "ascii-layout")]
    [:link
-    {:rel "preconnect"
+    {:rel  "preconnect"
      :href "https://fonts.googleapis.com"}]
    [:link
     {:crossorigin true
-     :href "https://fonts.gstatic.com"
-     :rel "preconnect"}]
+     :href        "https://fonts.gstatic.com"
+     :rel         "preconnect"}]
    [:link
     {:href font-url
-     :rel "stylesheet"}]
+     :rel  "stylesheet"}]
    [:link
     {:href "/css/main.css"
-     :rel "stylesheet"}]])
+     :rel  "stylesheet"}]])
 
 (defn layout
   [{:keys [title modules body]}]
@@ -153,9 +170,9 @@
 (defn copy-static!
   "Copy everything under public/css into out-dir (release builds only)."
   [out-dir]
-  (doseq [f (file-seq (io/file "public/css"))
+  (doseq [f     (file-seq (io/file "public/css"))
           :when (.isFile f)
-          :let [target (io/file out-dir (str (.relativize (.toPath (io/file "public"))
+          :let  [target (io/file out-dir (str (.relativize (.toPath (io/file "public"))
                                                           (.toPath f))))]]
     (io/make-parents target)
     (io/copy f target)))
