@@ -8,3 +8,8 @@ public/*.html
 public/js/
 src/app/data.cljs
 dist/
+
+# Emacs
+.#*
+\#*#
+*~
