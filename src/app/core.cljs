@@ -19,7 +19,9 @@
     :attrs {:type "number"
             :step 0.1}}])
 
-(def dividend-fields [{:id "amount"} {:id "date-time"} {:id "voucher-number"}])
+(defn form->map [form]
+  (-> (js/Object.fromEntries (js/FormData. form))
+      (js->clj :keywordize-keys true)))
 
 (defn create-key [prefix idx] (str prefix "-" idx))
 
@@ -90,31 +92,15 @@
 
 (defn init-dividends-form
   []
-  (let [form                 (.getElementById js/document "dividend-form")
-        dividends-btn        (.getElementById js/document "dividend-btn")
-        board-voucher-btn    (.getElementById js/document "board-btn")
-        voucher-number-input (.getElementById js/document "voucher-number")]
-    (.addEventListener dividends-btn
-                       "click"
-                       (fn []
-                         (set! (.-href js/location)
-                               (str "dividend-voucher.html?id="
-                                    (.-value voucher-number-input)))))
-    (.addEventListener board-voucher-btn
-                       "click"
-                       (fn []
-                         (set! (.-href js/location)
-                               (str "board-minutes.html?id="
-                                    (.-value voucher-number-input)))))
-    (doto form
-      (.addEventListener "submit"
-                         (fn [e] (.preventDefault e) (js/FormData. form)))
-      (.addEventListener "formdata"
-                         (fn [e]
-                           (let [form-data (.-formData e)
-                                 data      (line-items form-data dividend-fields)
-                                 k         (.get form-data "voucher-number")]
-                             (save! (str "dividend-" k) data)))))))
+  (let [form                 (.getElementById js/document "dividend-form")]
+    (.addEventListener form "submit"
+                       (fn [e]
+                         (.preventDefault e)
+                         (let [data (form->map form)
+                               k (:voucher-number data)
+                               page (.. e -submitter -value)]
+                           (save! (str "dividend-" k) data)
+                           (set! (.-href js/location) (str page ".html?id=" k)))))))
 
 (defn go [] (init-invoice-form) (init-dividends-form))
 

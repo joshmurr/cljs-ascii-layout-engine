@@ -60,15 +60,6 @@
      {:type  "submit"
       :value "Invoice!"}]]])
 
-;; TODO: This form has no submit button, so it is never submitted and its
-;; `formdata` handler (which saves the data) never runs. Move the
-;; "Dividends!" / "Board minutes!" buttons (see `pages` below) in here as
-;; submit buttons with a `:value` each, e.g.
-;;   [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
-;;   [:button {:type "submit" :value "board-minutes"} "Board minutes!"]
-;; The submit handler can then read `(.. e -submitter -value)` to decide
-;; where to go. This also brings back `required` validation.
-;;
 ;; TODO: Add the fields the documents actually need but don't capture yet:
 ;;   - number of shares (currently `$number` is filled with the amount)
 ;;   - amount per share (currently hard-coded to "1")
@@ -101,7 +92,9 @@
       :name     "amount"
       :id       "amount"
       :step     "0.01"
-      :required true}]]])
+      :required true}]]
+   [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
+   [:button {:type "submit" :value "board-minutes"} "Board minutes!"]])
 
 (def pages
   [{:file    "index.html"
@@ -111,12 +104,7 @@
     [:main
      [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
      [:section
-      (dividend-form)
-      ;; TODO: These buttons are outside the form, so clicking them only
-      ;; navigates and never saves anything. Move them into
-      ;; `dividend-form` as submit buttons (see the TODO there).
-      [:button {:id "dividend-btn"} "Dividends!"]
-      [:button {:id "board-btn"} "Board minutes!"]]]}
+      (dividend-form)]]}
    {:file    "invoice.html"
     :title   "Invoice"
     :modules ["invoice"]

@@ -5,12 +5,14 @@
             [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
             [app.storage :refer [get-data]]))
 
-(defn replace-several
-  "https://andersmurphy.com/2019/01/15/clojure-string-interpolation.html"
-  [s & {:as replacements}]
-  (reduce (fn [s [match replacement]] (str/replace s match replacement))
-          s
-          replacements))
+(defn fill-template
+  "Replaces each $placeholder in `s` with the value under the matching
+  keyword in `m`, e.g. \"$full-name\" -> (:full-name m). Unknown
+  placeholders are left as they are."
+  [s m]
+  (str/replace s
+               #"\$([a-z-]+)"
+               (fn [[match k]] (str (get m (keyword k) match)))))
 
 (defn long-str [& strings] (str/join "\n" strings))
 
@@ -47,34 +49,41 @@
    "Voucher Number: $voucher-number" "Date of Payment: $payment-date"
    "Shareholder: $full-name" "Shareholder Address: $registered-address"
    "Shareholding: $number Ordinary £1 shares"
-   "Dividend per share: £$amount-per-share" ; TODO: It's matching on
-                                            ; 'amount' here
+   "Dividend per share: £$amount-per-share"
    "Total dividend paid: £$total-amount" ""
    "This interim dividend was declared by resolution of the Board of Directors on $date-of-meeting."
    ""
    "Signed: $full-name" ""
    "Director" "Date: $date-of-meeting"))
 
+;; TODO: Several values below are placeholders rather than real data:
+;;   - :payment-date uses the meeting date
+;;   - :amount-per-share is hard-coded to "1"
+;;   - :number (number of shares) is filled with the amount
+;;   - :total-amount is the amount, not per-share × number of shares
+;; These need new fields on the form (see `build.pages/dividend-form`).
+(defn template-values
+  "The values to fill into the templates, keyed by placeholder name."
+  [data]
+  (let [date-time (js/Date. (:date-time data))
+        date      (.toLocaleDateString date-time)]
+    {:company-name       (:name data/company)
+     :company-number     (:number data/company)
+     :registered-address (str/join ", " (vals (:address data/company)))
+     :full-name          (:director data/company)
+     :date-of-meeting    date
+     :time-of-meeting    (.toLocaleTimeString date-time)
+     :payment-date       date
+     :voucher-number     (:voucher-number data)
+     :amount             (:amount data)
+     :amount-per-share   "1"
+     :number             (:amount data)
+     :total-amount       (:amount data)}))
+
 (defn draw!
-  [string-to-run]
-  (let [data         (first (get-data "dividend"))
-        date         (.toLocaleDateString (js/Date. (:date-time data)))
-        time         (.toLocaleTimeString (js/Date. (:date-time data)))
-        text-content (replace-several
-                      string-to-run
-                      "$company-name" (:name data/company)
-                      "$company-number" (:number data/company)
-                      "$registered-address"
-                      (str/join ", " (vals (:address data/company)))
-                      "$full-name" (:director data/company)
-                      "$date-of-meeting" date
-                      "$time-of-meeting" time
-                      "$amount" (:amount data)
-                      "$payment-date" date
-                      "$total-amount" (:amount data)
-                      "$amount-per-share" "1"
-                      "$number" (:amount data)
-                      "$voucher-number" (:voucher-number data))
+  [template]
+  (let [text-content (fill-template template
+                                    (template-values (get-data "dividend")))
         grid         (-> (blank-grid)
                          (shader diagonal-gradient-frag paul-ramp)
                          (text-box 6
@@ -89,5 +98,3 @@
   (if (.includes (.-href (.-location js/window)) "board-minutes.html")
     (draw! board-minutes-str)
     (draw! dividend-voucher-str)))
-
-
