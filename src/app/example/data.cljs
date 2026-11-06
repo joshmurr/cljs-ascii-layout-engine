@@ -27,8 +27,8 @@
 (defn get-vals
   [m]
   (letfn
-    [(paths* [vs m]
-       (reduce-kv (fn [ps _ v] (if (map? v) (paths* ps v) (conj ps v))) vs m))]
+   [(paths* [vs m]
+      (reduce-kv (fn [ps _ v] (if (map? v) (paths* ps v) (conj ps v))) vs m))]
     (paths* () m)))
 
 (comment

@@ -12,10 +12,10 @@
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 
 (def default-opts
-  {:px 2
-   :py 1
-   :mx 4
-   :my 2
+  {:px     2
+   :py     1
+   :mx     4
+   :my     2
    :border true})
 
 (defn company-details
@@ -53,7 +53,7 @@
   (text-box grid
             x
             y
-            [(str-pair "Bank" (:bank payment) ": ")
+           [(str-pair "Bank" (:bank payment) ": ")
              (str-pair "Sort Code" (:sort-code payment) ": ")
              (str-pair "Account" (:account payment) ": ")
              (str-pair "IBAN" (:iban payment) ": ")]
@@ -79,23 +79,23 @@
                   43
                   (make-table
                    [#_{:item-key :key}
-                    {:header "Description"
-                     :footer (constantly "Grand Total")
+                    {:header   "Description"
+                     :footer   (constantly "Grand Total")
                      :item-key :description
-                     :width 43
-                     :xform split-text}
-                    {:header "Quantity"
+                     :width    43
+                     :xform    split-text}
+                    {:header   "Quantity"
                      :item-key :qty
-                     :align :right}
-                    {:header "Rate"
+                     :align    :right}
+                    {:header   "Rate"
                      :item-key :rate
-                     :xform format-money
-                     :align :right}
-                    {:header "Total"
-                     :footer #(first (format-money (reduce + (map line-total %))
-                                                   nil))
-                     :align :right
-                     :xform format-money
+                     :xform    format-money
+                     :align    :right}
+                    {:header   "Total"
+                     :footer   #(first (format-money (reduce + (map line-total %))
+                                                     nil))
+                     :align    :right
+                     :xform    format-money
                      :item-key (fn [this] (* (:qty this) (:rate this)))}]
                    data)
                   {:my 3

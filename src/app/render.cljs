@@ -51,12 +51,12 @@
                  grid
                  (range 1 (dec w)))
          (as-> g
-           (reduce (fn [g i]
-                     (-> g
-                         (put x (+ y i) (nth border 1))
-                         (put x2 (+ y i) (nth border 1))))
-                   g
-                   (range 1 (dec h))))
+               (reduce (fn [g i]
+                         (-> g
+                             (put x (+ y i) (nth border 1))
+                             (put x2 (+ y i) (nth border 1))))
+                       g
+                       (range 1 (dec h))))
          (put x y (nth border 2))
          (put x2 y (nth border 3))
          (put x y2 (nth border 4))
@@ -69,17 +69,17 @@
     y
     text
     {:keys [px py mx my border]
-     :or {px 1
-          py 1
-          mx 0
-          my 0
-          border false}}]
+     :or   {px     1
+            py     1
+            mx     0
+            my     0
+            border false}}]
    (let [border-width (if border 1 0)
-         width (+ (reduce #(max (count %2) %1) 0 text)
-                  (* 2 px)
-                  (* 2 mx)
-                  (* 2 border-width))
-         height (+ (count text) (* 2 py) (* 2 my) (* 2 border-width))]
+         width        (+ (reduce #(max (count %2) %1) 0 text)
+                         (* 2 px)
+                         (* 2 mx)
+                         (* 2 border-width))
+         height       (+ (count text) (* 2 py) (* 2 my) (* 2 border-width))]
      (reduce
       (fn [g [idx line]] (put-str g x (+ y idx) line))
       (as-> grid g
@@ -97,7 +97,7 @@
   ([words line-len] (split-text words line-len #" "))
   ([words line-len splitter]
    (reduce (fn [acc word]
-             (let [last-line (last acc)
+             (let [last-line        (last acc)
                    current-line-len (count last-line)]
                (if (>= (+ current-line-len (count word)) line-len)
                  (conj acc word) ; New line
@@ -115,18 +115,18 @@
 
 (def sample
   [{:description "This was some serious stuff."
-    :qty "3"
-    :rate "350"}
+    :qty         "3"
+    :rate        "350"}
    {:description "It took me ages"
-    :qty "3"
-    :rate "100"}
+    :qty         "3"
+    :rate        "100"}
    {:description
     "It took me ages lorem ipsum dolor sit amet consectetur adipiscing elit."
-    :qty "5"
+    :qty  ""
     :rate "300"}
    {:description "I'm being cereal."
-    :qty "4"
-    :rate "19.50"}])
+    :qty         "4"
+    :rate        "19.50"}])
 
 (def default-spec
   {:width 10
@@ -136,18 +136,18 @@
 (defn normalize-spec [spec] (mapv #(merge default-spec %) spec))
 
 (def col-spec
-  [{:header "Description"
+  [{:header   "Description"
     :item-key :description
-    :width 40
-    :xform split-text}
-   {:header "Quantity"
+    :width    40
+    :xform    split-text}
+   {:header   "Quantity"
     :item-key :qty}
-   {:header "Rate"
+   {:header   "Rate"
     :item-key :rate
-    :align "r"}
-   {:header "Total"
+    :align    "r"}
+   {:header   "Total"
     :item-key (fn [this] (* (:qty this) (:rate this)))
-    :align "r"}])
+    :align    "r"}])
 
 (defn fill-in-gaps
   [row column-spec]
@@ -160,7 +160,7 @@
 (defn cells
   [col-spec lines-fn]
   (mapv (fn [{:keys [width align]
-              :as col}]
+              :as   col}]
           (let [pad (padder align)] (mapv #(pad % width) (lines-fn col))))
         col-spec))
 

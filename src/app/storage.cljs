@@ -2,7 +2,6 @@
   (:require [cljs.reader :as reader]
             [clojure.string :as str]))
 
-
 (defn save! [k v] (.setItem js/localStorage (name k) (pr-str v)))
 (defn load
   [k]
@@ -21,9 +20,9 @@
 (defn get-last [k] (last (filter #(str/includes? (name %) k) (get-keys))))
 (defn get-data
   [t]
-  (let [url (js/URL. (.-href (.-location js/window)))
+  (let [url      (js/URL. (.-href (.-location js/window)))
         id-param (.get (.-searchParams url) "id")
-        data (if id-param (load (str t "-" id-param)) (load (get-last t)))]
+        data     (if id-param (load (str t "-" id-param)) (load (get-last t)))]
     data))
 
 (comment

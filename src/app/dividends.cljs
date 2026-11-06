@@ -57,9 +57,9 @@
 
 (defn draw!
   [string-to-run]
-  (let [data (first (get-data "dividend"))
-        date (.toLocaleDateString (js/Date. (:date-time data)))
-        time (.toLocaleTimeString (js/Date. (:date-time data)))
+  (let [data         (first (get-data "dividend"))
+        date         (.toLocaleDateString (js/Date. (:date-time data)))
+        time         (.toLocaleTimeString (js/Date. (:date-time data)))
         text-content (replace-several
                       string-to-run
                       "$company-name" (:name data/company)
@@ -75,12 +75,12 @@
                       "$amount-per-share" "1"
                       "$number" (:amount data)
                       "$voucher-number" (:voucher-number data))
-        grid (-> (blank-grid)
-                 (shader diagonal-gradient-frag paul-ramp)
-                 (text-box 6
-                           4
-                           (flatten (map #(split-text %1 74)
-                                         (str/split text-content #"\n")))))]
+        grid         (-> (blank-grid)
+                         (shader diagonal-gradient-frag paul-ramp)
+                         (text-box 6
+                                   4
+                                   (flatten (map #(split-text %1 74)
+                                                 (str/split text-content #"\n")))))]
     (set! (.-textContent (.getElementById js/document "screen"))
           (render grid))))
 
@@ -89,3 +89,5 @@
   (if (.includes (.-href (.-location js/window)) "board-minutes.html")
     (draw! board-minutes-str)
     (draw! dividend-voucher-str)))
+
+

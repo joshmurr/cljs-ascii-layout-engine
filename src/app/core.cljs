@@ -4,18 +4,18 @@
 (enable-console-print!)
 
 (def line-item-fields
-  [{:id "description"
+  [{:id    "description"
     :label "Description:"
-    :tag "textarea"
+    :tag   "textarea"
     :attrs {:rows 8
             :cols 23}}
-   {:id "qty"
+   {:id    "qty"
     :label "Quantity:"
-    :tag "input"
+    :tag   "input"
     :attrs {:type "number"}}
-   {:id "rate"
+   {:id    "rate"
     :label "Rate:"
-    :tag "input"
+    :tag   "input"
     :attrs {:type "number"
             :step 0.1}}])
 
@@ -42,24 +42,24 @@
                [(create-el "label" {:for k} [label])
                 (create-el tag
                            (merge {:name id
-                                   :id k}
+                                   :id   k}
                                   attrs))])))
 
 (defn create-line-item [index] (map #(create-field index %) line-item-fields))
 
 (defn line-items
   [form-data fields]
-  (let [ks (map (comp keyword :id) fields)
+  (let [ks      (map (comp keyword :id) fields)
         columns (map #(vec (.getAll form-data (:id %))) fields)]
     (apply mapv (fn [& vs] (zipmap ks vs)) columns)))
 
 (defn init-invoice-form
   []
-  (let [form (.getElementById js/document "invoice-form")
+  (let [form                  (.getElementById js/document "invoice-form")
         submit-button-wrapper (.-parentNode (.querySelector form
                                                             "[type=submit]"))
-        add-button (.querySelector js/document "button")
-        line-item-count (atom 1)]
+        add-button            (.querySelector js/document "button")
+        line-item-count       (atom 1)]
     (.addEventListener add-button
                        "click"
                        (fn []
@@ -72,8 +72,8 @@
       (.addEventListener "formdata"
                          (fn [e]
                            (let [form-data (.-formData e)
-                                 data (line-items form-data line-item-fields)
-                                 k (.get form-data "invoice-number")]
+                                 data      (line-items form-data line-item-fields)
+                                 k         (.get form-data "invoice-number")]
                              (save! (str "invoice-" k) data)
                              (set! (.-href js/location)
                                    (str "invoice.html?id=" k))))))))
@@ -90,9 +90,9 @@
 
 (defn init-dividends-form
   []
-  (let [form (.getElementById js/document "dividend-form")
-        dividends-btn (.getElementById js/document "dividend-btn")
-        board-voucher-btn (.getElementById js/document "board-btn")
+  (let [form                 (.getElementById js/document "dividend-form")
+        dividends-btn        (.getElementById js/document "dividend-btn")
+        board-voucher-btn    (.getElementById js/document "board-btn")
         voucher-number-input (.getElementById js/document "voucher-number")]
     (.addEventListener dividends-btn
                        "click"
@@ -112,8 +112,8 @@
       (.addEventListener "formdata"
                          (fn [e]
                            (let [form-data (.-formData e)
-                                 data (line-items form-data dividend-fields)
-                                 k (.get form-data "voucher-number")]
+                                 data      (line-items form-data dividend-fields)
+                                 k         (.get form-data "voucher-number")]
                              (save! (str "dividend-" k) data)))))))
 
 (defn go [] (init-invoice-form) (init-dividends-form))
