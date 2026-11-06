@@ -6,7 +6,8 @@
     "watch": "shadow-cljs watch app",
     "release": "rm -rf dist && shadow-cljs release app",
     "deploy": "npm run release && wrangler pages deploy dist",
-    "repl": "shadow-cljs cljs-repl app"
+    "repl": "shadow-cljs cljs-repl app",
+    "format": "clojure-lsp format"
   },
   "devDependencies": {
     "shadow-cljs": "^2.28.20",
