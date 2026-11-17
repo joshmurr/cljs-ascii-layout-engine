@@ -32,12 +32,12 @@
   "Hiccup parser"
   [x]
   (cond
-    (nil? x) (.createDocumentFragment js/document)
-    (vector? x) (let [[tag & more] x
+    (nil? x)    (.createDocumentFragment js/document)
+    (vector? x) (let [[tag & more]     x
                       [attrs children] (if (map? (first more))
                                          [(first more) (rest more)]
                                          [nil more])
-                      el (.createElement js/document (name tag))]
+                      el               (.createElement js/document (name tag))]
 
                   (doseq [[k v] attrs]
                     (if (fn? v)
@@ -45,11 +45,11 @@
                       (.setAttribute el (name k) (str v))))
                   (doseq [c children] (.appendChild el (html c)))
                   el)
-    (seq? x) (let [frag (.createDocumentFragment js/document)]
-               (doseq [c x] (.appendChild frag (html c)))
+    (seq? x)              (let [frag (.createDocumentFragment js/document)]
+                            (doseq [c x] (.appendChild frag (html c)))
                frag)
     (instance? js/Node x) x
-    :else (.createTextNode js/document (str x))))
+    :else                 (.createTextNode js/document (str x))))
 
 (defn create-field
   [index {:keys [id label tag attrs]}]
@@ -93,7 +93,7 @@
 
 (defn id->url [id] (let [[kind number] (str/split (name id) "-")]
                      (case kind
-                       "invoice" (str "/invoice.html?id=" number)
+                       "invoice"  (str "/invoice.html?id=" number)
                        "dividend" (str "/dividend-voucher.html?id=" number)
                        "#")))
 
