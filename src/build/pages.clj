@@ -51,6 +51,20 @@
       :id       "invoice-number"
       :step     "1"
       :required true}]]
+    [:div
+     [:label {:for "issue-date"} "Issue Date:"]
+     [:input
+      {:type     "datetime-local"
+       :name     "issue-date"
+       :id       "issue-date"
+       :required true}]]
+    [:div
+     [:label {:for "due-date"} "Due Date:"]
+     [:input
+      {:type     "datetime-local"
+       :name     "due-date"
+       :id       "due-date"
+       :required true}]]
    (map (fn [[idx item]]
           (let [k (create-key (:id item) idx)]
             [:div

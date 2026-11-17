@@ -24,6 +24,9 @@
   (-> (js/Object.fromEntries (js/FormData. form))
       (js->clj :keywordize-keys true)))
 
+(defn form-data->map [fd]
+  (js->clj (js/Object.fromEntries fd) :keywordize-keys true))
+
 (defn create-key [prefix idx] (str prefix "-" idx))
 
 (defn ->node [n] (if (string? n) (.createTextNode js/document n) n))
@@ -65,6 +68,18 @@
         columns (map #(vec (.getAll form-data (:id %))) fields)]
     (apply mapv (fn [& vs] (zipmap ks vs)) columns)))
 
+(defn change-location [path] (set! (.-href js/location) path))
+
+(defn id->url [id] (let [[kind number] (str/split (name id) "-")]
+                     (case kind
+                       "invoice"  (str "/invoice.html?id=" number)
+                       "dividend" (str "/dividend-voucher.html?id=" number)
+                       "#")))
+
+(defn populate-forms-nav []
+  (let [parent (.getElementById js/document "all-forms")]
+    (.replaceChildren parent (html (for [k (get-keys)] [:li [:a {:href (id->url k)} (name k)]])))))
+
 (defn init-invoice-form
   []
   (let [form                  (.getElementById js/document "invoice-form")
@@ -78,28 +93,19 @@
                          (doseq [el (create-line-item @line-item-count)]
                            (.insertBefore form el submit-button-wrapper))
                          (swap! line-item-count inc)))
-    (doto form
-      (.addEventListener "submit"
-                         (fn [e] (.preventDefault e) (js/FormData. form)))
-      (.addEventListener "formdata"
-                         (fn [e]
-                           (let [form-data (.-formData e)
-                                 data      (line-items form-data line-item-fields)
-                                 k         (.get form-data "invoice-number")]
-                             (save! (str "invoice-" k) data)
-                             (set! (.-href js/location)
-                                   (str "invoice.html?id=" k))))))))
+    (.addEventListener form "submit"
+                       (fn [e]
+                         (.preventDefault e)
+                         (let [fd   (js/FormData. form)
+                               data (form-data->map fd)
+                              id   (:invoice-number data)]
+                           (save! (str "invoice-" id)
+                                  (-> data
+                                      (select-keys [:issue-date :due-date])
+                                      (assoc :id id
+                                             :line-items (line-items fd line-item-fields))))
+                           (change-location (str "invoice.html?id=" id)))))))
 
-
-(defn id->url [id] (let [[kind number] (str/split (name id) "-")]
-                     (case kind
-                       "invoice"  (str "/invoice.html?id=" number)
-                       "dividend" (str "/dividend-voucher.html?id=" number)
-                       "#")))
-
-(defn populate-all-forms []
-  (let [parent (.getElementById js/document "all-forms")]
-    (.replaceChildren parent (html (for [k (get-keys)] [:li [:a {:href (id->url k)} k]])))))
 
 (defn init-dividends-form
   []
@@ -111,8 +117,8 @@
                                k (:voucher-number data)
                                page (.. e -submitter -value)]
                            (save! (str "dividend-" k) data)
-                           (set! (.-href js/location) (str page ".html?id=" k)))))))
+                           (change-location (str page ".html?id=" k)))))))
 
-(defn go [] (init-invoice-form) (init-dividends-form) (populate-all-forms))
+(defn go [] (init-invoice-form) (init-dividends-form) (populate-forms-nav))
 
 (defn ^:export init [] (go))

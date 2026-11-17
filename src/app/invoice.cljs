@@ -31,12 +31,12 @@
             default-opts))
 
 (defn invoice-details
-  [grid x y invoice-number date due-date]
+  [grid x y invoice-number issue-date due-date]
   (text-box grid
             x
             y
             [(str-pair "Invoice #" invoice-number)
-             (str-pair "Date" date)
+             (str-pair "Issue Date" issue-date)
              (str-pair "Due Date" due-date)]
             default-opts))
 
@@ -61,6 +61,8 @@
 
 (defn line-total [{:keys [qty rate]}] (* qty rate))
 
+(defn format-date [d] (.toLocaleDateString (js/Date. d)))
+
 (defn draw!
   []
   (let [data (get-data "invoice")
@@ -69,9 +71,9 @@
                  (company-details 11 7)
                  (invoice-details 61
                                   7
-                                  1
-                                  (.toDateString (js/Date.))
-                                  (.toDateString (js/Date.)))
+                                  (:id data)
+                                  (format-date (:issue-date data))
+                                  (format-date (:due-date data)))
                  (client-details 11 27)
                  (payment-details 56 27)
                  (text-box
@@ -97,7 +99,7 @@
                      :align    :right
                      :xform    format-money
                      :item-key (fn [this] (* (:qty this) (:rate this)))}]
-                   data)
+                   (:line-items data))
                   {:my 3
                    :mx 5}))]
     (set! (.-textContent (.getElementById js/document "screen"))
