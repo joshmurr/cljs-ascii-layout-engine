@@ -51,15 +51,6 @@
     (instance? js/Node x) x
     :else (.createTextNode js/document (str x))))
 
-(defn create-el
-  ([tag] (create-el tag nil nil))
-  ([tag attrs] (create-el tag attrs nil))
-  ([tag attrs children]
-   (let [el (.createElement js/document tag)]
-     (doseq [[k v] attrs] (.setAttribute el (name k) (str v)))
-     (doseq [child children] (.appendChild el (->node child)))
-     el)))
-
 (defn create-field
   [index {:keys [id label tag attrs]}]
   (let [k (create-key id index)]
