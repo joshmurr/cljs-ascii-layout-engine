@@ -44,4 +44,9 @@ pre#screen {
   nav {
     display: none !important;
   }
+  @page {
+      margin: 0;
+      padding: 0;
+      size: A4;
+  }
 }
