@@ -31,6 +31,12 @@
 
 (defn create-key [prefix idx] (str prefix "-" idx))
 
+(defn all-forms
+  []
+  [:div
+   [:h3 "All Forms"]
+   [:ul#all-forms]])
+
 (defn invoice-form
   []
   [:form
@@ -102,6 +108,7 @@
     :modules ["main"]
     :body
     [:main
+     (all-forms)
      [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
      [:section
       (dividend-form)]]}

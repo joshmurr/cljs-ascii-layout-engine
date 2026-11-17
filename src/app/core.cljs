@@ -1,5 +1,6 @@
 (ns app.core
-  (:require [app.storage :refer [save!]]))
+  (:require [clojure.string :as str]
+             [app.storage :refer [save! get-all get-keys]]))
 
 (enable-console-print!)
 
@@ -27,6 +28,29 @@
 
 (defn ->node [n] (if (string? n) (.createTextNode js/document n) n))
 
+(defn html
+  "Hiccup parser"
+  [x]
+  (cond
+    (nil? x) (.createDocumentFragment js/document)
+    (vector? x) (let [[tag & more] x
+                      [attrs children] (if (map? (first more))
+                                         [(first more) (rest more)]
+                                         [nil more])
+                      el (.createElement js/document (name tag))]
+
+                  (doseq [[k v] attrs]
+                    (if (fn? v)
+                      (.addEventListener el (subs (name k) 3) v)
+                      (.setAttribute el (name k) (str v))))
+                  (doseq [c children] (.appendChild el (html c)))
+                  el)
+    (seq? x) (let [frag (.createDocumentFragment js/document)]
+               (doseq [c x] (.appendChild frag (html c)))
+               frag)
+    (instance? js/Node x) x
+    :else (.createTextNode js/document (str x))))
+
 (defn create-el
   ([tag] (create-el tag nil nil))
   ([tag attrs] (create-el tag attrs nil))
@@ -39,13 +63,8 @@
 (defn create-field
   [index {:keys [id label tag attrs]}]
   (let [k (create-key id index)]
-    (create-el "div"
-               nil
-               [(create-el "label" {:for k} [label])
-                (create-el tag
-                           (merge {:name id
-                                   :id   k}
-                                  attrs))])))
+    (html [:div [:label {:for k} label]
+           [(keyword tag) (merge {:name id :id k} attrs)]])))
 
 (defn create-line-item [index] (map #(create-field index %) line-item-fields))
 
@@ -80,15 +99,16 @@
                              (set! (.-href js/location)
                                    (str "invoice.html?id=" k))))))))
 
-#_(defn create-link-btn
-    [id href]
-    (let [btn (.getElementById js/document id)]
-      (.addEventListener btn "click" (fn [] (set! (.-href js/location) href)))))
 
-#_(defn build-url-from-base
-    [pathname params]
-    (let [url (js/URL. (.-location js/window))]
-      (str (.-origin url) pathname "?" (js/URLSearchParams. (clj->js params)))))
+(defn id->url [id] (let [[kind number] (str/split (name id) "-")]
+                     (case kind
+                       "invoice" (str "/invoice.html?id=" number)
+                       "dividend" (str "/dividend-voucher.html?id=" number)
+                       "#")))
+
+(defn populate-all-forms []
+  (let [parent (.getElementById js/document "all-forms")]
+    (.replaceChildren parent (html (for [k (get-keys)] [:li [:a {:href (id->url k)} k]])))))
 
 (defn init-dividends-form
   []
@@ -102,6 +122,6 @@
                            (save! (str "dividend-" k) data)
                            (set! (.-href js/location) (str page ".html?id=" k)))))))
 
-(defn go [] (init-invoice-form) (init-dividends-form))
+(defn go [] (init-invoice-form) (init-dividends-form) (populate-all-forms))
 
 (defn ^:export init [] (go))
