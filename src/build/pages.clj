@@ -65,11 +65,6 @@
      {:type  "submit"
       :value "Invoice!"}]]])
 
-;; TODO: Add the fields the documents actually need but don't capture yet:
-;;   - number of shares (currently `$number` is filled with the amount)
-;;   - amount per share (currently hard-coded to "1")
-;;   - payment date (currently the same as the meeting date)
-;; The total dividend can then be calculated rather than entered.
 (defn dividend-form
   []
   [:form
@@ -91,12 +86,20 @@
       :id       "date-time"
       :required true}]]
    [:div
-    [:label {:for "amount"} "Amount:"]
+    [:label {:for "payment-date"} "Payment date:"]
+    [:input
+     {:type     "date"
+      :name     "payment-date"
+      :id       "payment-date"
+      :required true}]]
+   [:div
+    [:label {:for "amount-per-share"} "Dividend per share (£):"]
     [:input
      {:type     "number"
-      :name     "amount"
-      :id       "amount"
+      :name     "amount-per-share"
+      :id       "amount-per-share"
       :step     "0.01"
+      :min      "0.01"
       :required true}]]
    [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
    [:button {:type "submit" :value "board-minutes"} "Board minutes!"]])

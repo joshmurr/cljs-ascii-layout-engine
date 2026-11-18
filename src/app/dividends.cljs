@@ -18,7 +18,7 @@
 
 (def board-minutes-str
   (long-str
-   "$company-name LIMITED"
+   "$company-name"
    "" "Company Number: $company-number"
    "Registered Office: $registered-address" ""
    "Minutes of a Meeting of the Board of Directors" ""
@@ -34,7 +34,7 @@
    "The Director considered the Company's cash flow requirements and ongoing liabilities, including a reserve for Corporation Tax on profits earned to date, and confirmed that payment of the proposed dividend would not prejudice the Company's ability to meet its liabilities as they fall due."
    "3. Resolution"
    "" "IT WAS RESOLVED THAT:"
-   "An interim dividend of $amount per Ordinary £1 share be declared and paid on $payment-date to shareholders on the register at the date of this meeting, being a total distribution of £$amount."
+   "An interim dividend of £$amount-per-share per $share-class share of £$nominal-value each be paid on $payment-date to shareholders on the register at the date of this meeting, being a total distribution of £$total-amount."
    ""
    "4. Close" "There being no further business, the meeting was closed."
    "" "Signed: $full-name"
@@ -44,48 +44,56 @@
 (def dividend-voucher-str
   (long-str
    "Dividend Voucher"
-   "$company-name LIMITED" "Company Number: $company-number"
+   "$company-name" "Company Number: $company-number"
    "Registered Office: $registered-address" ""
    "Voucher Number: $voucher-number" "Date of Payment: $payment-date"
-   "Shareholder: $full-name" "Shareholder Address: $registered-address"
-   "Shareholding: $number Ordinary £1 shares"
+   "Shareholder: $shareholder-name" "Shareholder Address: $shareholder-address"
+   "Shareholding: $number $share-class shares of £$nominal-value each"
    "Dividend per share: £$amount-per-share"
    "Total dividend paid: £$total-amount" ""
-   "This interim dividend was declared by resolution of the Board of Directors on $date-of-meeting."
+   "This interim dividend was approved by resolution of the Board of Directors at a meeting held on $date-of-meeting."
    ""
    "Signed: $full-name" ""
    "Director" "Date: $date-of-meeting"))
 
-;; TODO: Several values below are placeholders rather than real data:
-;;   - :payment-date uses the meeting date
-;;   - :amount-per-share is hard-coded to "1"
-;;   - :number (number of shares) is filled with the amount
-;;   - :total-amount is the amount, not per-share × number of shares
-;; These need new fields on the form (see `build.pages/dividend-form`).
+;; Older saved vouchers only have a total `:amount` and no payment date,
+;; so fall back to deriving the per-share amount and using the meeting date.
 (defn template-values
   "The values to fill into the templates, keyed by placeholder name."
   [data]
-  (let [date-time (js/Date. (:date-time data))
-        date      (.toLocaleDateString date-time)]
-    {:company-name       (:name config/company)
-     :company-number     (:number config/company)
-     :registered-address (str/join ", " (vals (:address config/company)))
-     :full-name          (:director config/company)
-     :date-of-meeting    date
-     :time-of-meeting    (.toLocaleTimeString date-time)
-     :payment-date       date
-     :voucher-number     (:voucher-number data)
-     :amount             (:amount data)
-     :amount-per-share   "1"
-     :number             (:amount data)
-     :total-amount       (:amount data)}))
+  (let [date-time    (js/Date. (:date-time data))
+        date         (.toLocaleDateString date-time)
+        {:keys [number class nominal-value]} (:shares config/shareholder)
+        per-share    (if-let [p (:amount-per-share data)]
+                       (js/parseFloat p)
+                       (/ (js/parseFloat (:amount data)) number))
+        ;; Append a time so the date parses as local, not UTC, midnight.
+        payment-date (if-let [d (not-empty (:payment-date data))]
+                       (.toLocaleDateString (js/Date. (str d "T00:00")))
+                       date)
+        address      #(str/join ", " (vals (:address %)))]
+    {:company-name        (:name config/company)
+     :company-number      (:number config/company)
+     :registered-address  (address config/company)
+     :full-name           (:director config/company)
+     :shareholder-name    (:name config/shareholder)
+     :shareholder-address (address config/shareholder)
+     :date-of-meeting     date
+     :time-of-meeting     (.toLocaleTimeString date-time)
+     :payment-date        payment-date
+     :voucher-number      (:voucher-number data)
+     :number              number
+     :share-class         class
+     :nominal-value       nominal-value
+     :amount-per-share    (.toFixed per-share 2)
+     :total-amount        (.toFixed (* per-share number) 2)}))
 
 (defn draw!
   [template]
   (let [text-content (fill-template template
                                     (template-values (get-data "dividend")))
         grid         (-> (blank-grid)
-                         (shader diagonal-gradient-frag paul-ramp)
+                         #_(shader diagonal-gradient-frag paul-ramp)
                          (text-box 6
                                    4
                                    (flatten (map #(split-text %1 74)

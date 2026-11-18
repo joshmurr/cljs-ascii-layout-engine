@@ -6,5 +6,6 @@
 (def config (reader/read-string (rc/inline "app/config.edn")))
 
 (def company (:company config))
+(def shareholder (:shareholder config))
 (def client (:client config))
 (def payment (:payment config))

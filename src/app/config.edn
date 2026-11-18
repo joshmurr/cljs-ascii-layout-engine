@@ -1,5 +1,5 @@
 {:company {:director "The King"
-           :name     "Acme Inc."
+           :name     "Acme Ltd"
            :address  {:street "123 Main St."
                       :city   "Anytown"
                       :state  "CA"
@@ -7,6 +7,16 @@
            :number   "17123027"
            :phone    "123-456-7890"
            :email    "johndoe@me.com"}
+
+ ;; The shareholder receiving dividends, and their holding.
+ :shareholder {:name    "The King"
+               :address {:street "123 Main St."
+                         :city   "Anytown"
+                         :state  "CA"
+                         :zip    "12345"}
+               :shares  {:number        100
+                         :class         "Ordinary"
+                         :nominal-value 1}}
 
  :client  {:name    "John Doe"
            :address {:street "123 Main St."
