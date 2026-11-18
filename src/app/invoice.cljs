@@ -7,7 +7,7 @@
              :refer
              [blank-grid text-box render make-table split-text format-money]]
             [app.shader :refer [shader amplitude paul-ramp]]
-            [app.example.data :refer [client payment company]]))
+            [app.config :refer [client payment company]]))
 
 (defn str-pair ([a b] (str-pair a b " ")) ([a b sep] (str/join sep [a b])))
 

@@ -1,6 +1,6 @@
 (ns app.dividends
   (:require [clojure.string :as str]
-            [app.example.data :as data]
+            [app.config :as config]
             [app.render :refer [blank-grid text-box split-text render]]
             [app.shader :refer [shader diagonal-gradient-frag paul-ramp]]
             [app.storage :refer [get-data]]))
@@ -67,10 +67,10 @@
   [data]
   (let [date-time (js/Date. (:date-time data))
         date      (.toLocaleDateString date-time)]
-    {:company-name       (:name data/company)
-     :company-number     (:number data/company)
-     :registered-address (str/join ", " (vals (:address data/company)))
-     :full-name          (:director data/company)
+    {:company-name       (:name config/company)
+     :company-number     (:number config/company)
+     :registered-address (str/join ", " (vals (:address config/company)))
+     :full-name          (:director config/company)
      :date-of-meeting    date
      :time-of-meeting    (.toLocaleTimeString date-time)
      :payment-date       date

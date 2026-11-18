@@ -12,7 +12,7 @@
                   :main {:depends-on #{:shared}
                          :entries [app.core]
                          :init-fn app.core/init}
-                  :shared {:entries [app.example.data app.storage]}}
+                  :shared {:entries [app.config app.storage]}}
         :output-dir "public/js"
         :release {:output-dir "dist/js"}
         :target :browser}}
