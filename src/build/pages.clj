@@ -1,7 +1,7 @@
 (ns build.pages
   (:require [clojure.java.io :as io]
             [hiccup2.core :as h]
-            [app.fields :refer [line-item-fields create-key]]))
+            [app.fields :refer [line-item-fields]]))
 
 (def font-url
   (str "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@"
