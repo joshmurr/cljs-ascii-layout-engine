@@ -1,24 +1,9 @@
 (ns app.core
   (:require [clojure.string :as str]
-             [app.storage :refer [save! get-all get-keys]]))
+            [app.storage :refer [save! get-all get-keys]]
+            [app.fields :refer [line-item-fields]]))
 
 (enable-console-print!)
-
-(def line-item-fields
-  [{:id    "description"
-    :label "Description:"
-    :tag   "textarea"
-    :attrs {:rows 8
-            :cols 23}}
-   {:id    "qty"
-    :label "Quantity:"
-    :tag   "input"
-    :attrs {:type "number"}}
-   {:id    "rate"
-    :label "Rate:"
-    :tag   "input"
-    :attrs {:type "number"
-            :step 0.1}}])
 
 (defn form->map [form]
   (-> (js/Object.fromEntries (js/FormData. form))
