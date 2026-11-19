@@ -76,6 +76,14 @@
                                  [:a {:href (id->url (str "board_minutes-" (get-number k)))}
                                   (str "board_minutes-" (get-number k))])])))))
 
+(defn toggle-error [kind]
+  (fn [e]
+    (if
+        (some (fn [k] (= (get-number k) (.. e -target -value)))
+              (get-keys-of kind))
+      (.. e -target -classList (add "error"))
+      (.. e -target -classList (remove "error")))))
+
 (defn init-invoice-form
   []
   (let [form                  (.getElementById js/document "invoice-form")
@@ -83,6 +91,9 @@
                                                             "[type=submit]"))
         add-button            (.querySelector js/document "button")
         line-item-count       (atom 1)]
+    (.addEventListener (.getElementById js/document "invoice-number")
+                       "input"
+                       (toggle-error "invoice"))
     (.addEventListener add-button
                        "click"
                        (fn []
@@ -105,6 +116,9 @@
 (defn init-dividends-form
   []
   (let [form                 (.getElementById js/document "dividend-form")]
+    (.addEventListener (.getElementById js/document "voucher-number")
+                       "input"
+                       (toggle-error "dividend"))
     (.addEventListener form "submit"
                        (fn [e]
                          (.preventDefault e)

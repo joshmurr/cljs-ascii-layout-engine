@@ -40,6 +40,8 @@ pre#screen {
   letter-spacing: 0;
 }
 
+.error { background-color: red; }
+
 @media print {
   nav {
     display: none !important;
