@@ -1,6 +1,6 @@
 (ns app.core
   (:require [clojure.string :as str]
-            [app.storage :refer [save! get-all get-keys]]
+            [app.storage :refer [save-with-timestamp! get-all get-keys]]
             [app.fields :refer [line-item-fields]]))
 
 (enable-console-print!)
@@ -83,8 +83,8 @@
                          (.preventDefault e)
                          (let [fd   (js/FormData. form)
                                data (form-data->map fd)
-                              id   (:invoice-number data)]
-                           (save! (str "invoice-" id)
+                               id   (:invoice-number data)]
+                           (save-with-timestamp! (str "invoice-" id)
                                   (-> data
                                       (select-keys [:issue-date :due-date])
                                       (assoc :id id
@@ -101,7 +101,7 @@
                          (let [data (form->map form)
                                k (:voucher-number data)
                                page (.. e -submitter -value)]
-                           (save! (str "dividend-" k) data)
+                           (save-with-timestamp! (str "dividend-" k) data)
                            (change-location (str page ".html?id=" k)))))))
 
 (defn go [] (init-invoice-form) (init-dividends-form) (populate-forms-nav))

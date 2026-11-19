@@ -3,6 +3,7 @@
             [clojure.string :as str]))
 
 (defn save! [k v] (.setItem js/localStorage (name k) (pr-str v)))
+(defn save-with-timestamp! [k v] (save! k (merge v {:created-at (js/Date.now)})))
 (defn load
   [k]
   (some-> (.getItem js/localStorage (name k))
@@ -31,4 +32,5 @@
   (get-all)
   (get-keys)
   (get-last "invoice")
-  (get-last "dividend"))
+  (get-last "dividend")
+  (merge {:data "data"} {:created-at (js/Date.now)}))
