@@ -8,19 +8,23 @@
        "0,100;0,200;0,300;0,400;0,500;0,600;0,700;"
        "1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"))
 
-(def nav-links
-  [["/index.html" "Home"]
-   ["/invoice.html" "Invoice"]
-   ["/board-minutes.html" "Board minutes"]
-   ["/dividend-voucher.html" "Dividend voucher"]])
+(def nav-links [["/index.html" "Home"]])
 
 (defn create-key [prefix idx] (str prefix "-" idx))
 
-(defn all-forms
+(defn invoice-nav
   []
   [:div
-   [:h3 "All Forms"]
-   [:ul#all-forms]])
+   [:h3 "Invoices"]
+   [:nav
+    [:ol#invoice-nav]]])
+
+(defn dividends-nav
+  []
+  [:div
+   [:h3 "Dividends"]
+   [:nav
+    [:ol#dividend-nav]]])
 
 (defn invoice-form
   []
@@ -36,20 +40,20 @@
       :id       "invoice-number"
       :step     "1"
       :required true}]]
-    [:div
-     [:label {:for "issue-date"} "Issue Date:"]
-     [:input
-      {:type     "date"
-       :name     "issue-date"
-       :id       "issue-date"
-       :required true}]]
-    [:div
-     [:label {:for "due-date"} "Due Date:"]
-     [:input
-      {:type     "date"
-       :name     "due-date"
-       :id       "due-date"
-       :required true}]]
+   [:div
+    [:label {:for "issue-date"} "Issue Date:"]
+    [:input
+     {:type     "date"
+      :name     "issue-date"
+      :id       "issue-date"
+      :required true}]]
+   [:div
+    [:label {:for "due-date"} "Due Date:"]
+    [:input
+     {:type     "date"
+      :name     "due-date"
+      :id       "due-date"
+      :required true}]]
    (map (fn [[idx item]]
           (let [k (create-key (:id item) idx)]
             [:div
@@ -110,7 +114,8 @@
     :modules ["main"]
     :body
     [:main
-     (all-forms)
+     (invoice-nav)
+     (dividends-nav)
      [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
      [:section
       (dividend-form)]]}

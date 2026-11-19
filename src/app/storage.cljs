@@ -3,22 +3,33 @@
             [clojure.string :as str]))
 
 (defn save! [k v] (.setItem js/localStorage (name k) (pr-str v)))
+
 (defn save-with-timestamp! [k v] (save! k (merge v {:created-at (js/Date.now)})))
+
 (defn load
   [k]
   (some-> (.getItem js/localStorage (name k))
           reader/read-string))
+
+(defn update! [k v] (save! k (merge (load k) {:updated-at (js/Date.now)})))
+
 (defn forget! [k] (.removeItem js/localStorage (name k)))
+
 (defn get-all
   []
   (reduce (fn [m [k v]] (assoc m (keyword k) (reader/read-string v)))
           {}
           (js->clj (.entries js/Object js/localStorage))))
+
 (defn get-keys
   []
   (sort-by (fn [a] (js/parseInt (last (str/split (name a) #"-"))))
            (keys (get-all))))
-(defn get-last [k] (last (filter #(str/includes? (name %) k) (get-keys))))
+
+(defn get-keys-of [k] (filter #(str/includes? (name %) k) (get-keys)))
+
+(defn get-last [k] (last (get-keys-of k)))
+
 (defn get-data
   [t]
   (let [url      (js/URL. (.-href (.-location js/window)))

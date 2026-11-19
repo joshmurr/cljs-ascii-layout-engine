@@ -1,6 +1,6 @@
 (ns app.core
   (:require [clojure.string :as str]
-            [app.storage :refer [save-with-timestamp! get-all get-keys]]
+            [app.storage :refer [save-with-timestamp! get-keys-of]]
             [app.fields :refer [line-item-fields]]))
 
 (enable-console-print!)
@@ -61,9 +61,10 @@
                        "dividend" (str "/dividend-voucher.html?id=" number)
                        "#")))
 
-(defn populate-forms-nav []
-  (let [parent (.getElementById js/document "all-forms")]
-    (.replaceChildren parent (html (for [k (get-keys)] [:li [:a {:href (id->url k)} (name k)]])))))
+(defn populate-form-nav [type]
+  (let [parent (.getElementById js/document (str type "-nav"))]
+    (.replaceChildren parent
+                      (html (for [k (get-keys-of type)] [:li [:a {:href (id->url k)} (name k)]])))))
 
 (defn init-invoice-form
   []
@@ -85,10 +86,10 @@
                                data (form-data->map fd)
                                id   (:invoice-number data)]
                            (save-with-timestamp! (str "invoice-" id)
-                                  (-> data
-                                      (select-keys [:issue-date :due-date])
-                                      (assoc :id id
-                                             :line-items (line-items fd line-item-fields))))
+                                                 (-> data
+                                                     (select-keys [:issue-date :due-date])
+                                                     (assoc :id id
+                                                            :line-items (line-items fd line-item-fields))))
                            (change-location (str "invoice.html?id=" id)))))))
 
 
@@ -104,6 +105,10 @@
                            (save-with-timestamp! (str "dividend-" k) data)
                            (change-location (str page ".html?id=" k)))))))
 
-(defn go [] (init-invoice-form) (init-dividends-form) (populate-forms-nav))
+(defn go []
+  (init-invoice-form)
+  (init-dividends-form)
+  (populate-form-nav "invoice")
+  (populate-form-nav "dividend"))
 
 (defn ^:export init [] (go))
