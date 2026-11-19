@@ -53,7 +53,7 @@
   (text-box grid
             x
             y
-           [(str-pair "Bank" (:bank payment) ": ")
+            [(str-pair "Bank" (:bank payment) ": ")
              (str-pair "Sort Code" (:sort-code payment) ": ")
              (str-pair "Account" (:account payment) ": ")
              (str-pair "IBAN" (:iban payment) ": ")]

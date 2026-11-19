@@ -35,7 +35,7 @@
                   el)
     (seq? x)              (let [frag (.createDocumentFragment js/document)]
                             (doseq [c x] (.appendChild frag (html c)))
-               frag)
+                            frag)
     (instance? js/Node x) x
     :else                 (.createTextNode js/document (str x))))
 
@@ -72,7 +72,9 @@
                       (html (for [k (get-keys-of type)]
                               [:li
                                [:a {:href (id->url k)} (name k)]
-                               (when (= type "dividend") [:a {:href (id->url (str "board_minutes-" (get-number k)))} (str "board_minutes-" (get-number k))])])))))
+                               (when (= type "dividend")
+                                 [:a {:href (id->url (str "board_minutes-" (get-number k)))}
+                                  (str "board_minutes-" (get-number k))])])))))
 
 (defn init-invoice-form
   []
@@ -99,7 +101,6 @@
                                                      (assoc :id id
                                                             :line-items (line-items fd line-item-fields))))
                            (change-location (str "invoice.html?id=" id)))))))
-
 
 (defn init-dividends-form
   []

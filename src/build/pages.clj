@@ -175,7 +175,7 @@
   (doseq [f     (file-seq (io/file "public/css"))
           :when (.isFile f)
           :let  [target (io/file out-dir (str (.relativize (.toPath (io/file "public"))
-                                                          (.toPath f))))]]
+                                                           (.toPath f))))]]
     (io/make-parents target)
     (io/copy f target)))
 
