@@ -39,14 +39,14 @@
     [:div
      [:label {:for "issue-date"} "Issue Date:"]
      [:input
-      {:type     "datetime-local"
+      {:type     "date"
        :name     "issue-date"
        :id       "issue-date"
        :required true}]]
     [:div
      [:label {:for "due-date"} "Due Date:"]
      [:input
-      {:type     "datetime-local"
+      {:type     "date"
        :name     "due-date"
        :id       "due-date"
        :required true}]]
@@ -79,11 +79,11 @@
       :id       "voucher-number"
       :required true}]]
    [:div
-    [:label {:for "date-time"} "Datetime:"]
+    [:label {:for "date"} "Date:"]
     [:input
-     {:type     "datetime-local"
-      :name     "date-time"
-      :id       "date-time"
+     {:type     "date"
+      :name     "date"
+      :id       "date"
       :required true}]]
    [:div
     [:label {:for "payment-date"} "Payment date:"]

@@ -61,7 +61,7 @@
 (defn template-values
   "The values to fill into the templates, keyed by placeholder name."
   [data]
-  (let [date-time    (js/Date. (:date-time data))
+  (let [date-time    (js/Date. (:date data))
         date         (.toLocaleDateString date-time)
         {:keys [number class nominal-value]} (:shares config/shareholder)
         per-share    (if-let [p (:amount-per-share data)]
