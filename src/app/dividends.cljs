@@ -48,7 +48,7 @@
    "Registered Office: $registered-address" ""
    "Voucher Number: $voucher-number" "Date of Payment: $payment-date"
    "Shareholder: $shareholder-name" "Shareholder Address: $shareholder-address"
-   "Shareholding: $number $share-class shares of £$nominal-value each"
+   "Shareholding: $number $share-class $share-noun of £$nominal-value each"
    "Dividend per share: £$amount-per-share"
    "Total dividend paid: £$total-amount" ""
    "This interim dividend was approved by resolution of the Board of Directors at a meeting held on $date-of-meeting."
@@ -56,8 +56,6 @@
    "Signed: $full-name" ""
    "Director" "Date: $date-of-meeting"))
 
-;; Older saved vouchers only have a total `:amount` and no payment date,
-;; so fall back to deriving the per-share amount and using the meeting date.
 (defn template-values
   "The values to fill into the templates, keyed by placeholder name."
   [data]
@@ -84,6 +82,7 @@
      :voucher-number      (:voucher-number data)
      :number              number
      :share-class         class
+     :share-noun          (if (= 1 number) "share" "shares")
      :nominal-value       nominal-value
      :amount-per-share    (.toFixed per-share 2)
      :total-amount        (.toFixed (* per-share number) 2)}))

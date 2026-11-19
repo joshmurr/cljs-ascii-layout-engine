@@ -14,7 +14,7 @@
                          :city   "Anytown"
                          :state  "CA"
                          :zip    "12345"}
-               :shares  {:number        100
+               :shares  {:number        1
                          :class         "Ordinary"
                          :nominal-value 1}}
 
