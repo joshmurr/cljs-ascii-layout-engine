@@ -89,7 +89,7 @@
   (let [form                  (.getElementById js/document "invoice-form")
         submit-button-wrapper (.-parentNode (.querySelector form
                                                             "[type=submit]"))
-        add-button            (.querySelector js/document "button")
+        add-button            (.getElementById js/document "add-line-item")
         line-item-count       (atom 1)]
     (.addEventListener (.getElementById js/document "invoice-number")
                        "input"
@@ -98,7 +98,7 @@
                        "click"
                        (fn []
                          (doseq [el (create-line-item @line-item-count)]
-                           (.insertBefore form el submit-button-wrapper))
+                           (.insertBefore form el add-button))
                          (swap! line-item-count inc)))
     (.addEventListener form "submit"
                        (fn [e]

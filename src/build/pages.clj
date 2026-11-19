@@ -64,10 +64,8 @@
                       :name     (:id item)}
                      (:attrs item))]]))
         (map-indexed vector line-item-fields))
-   [:div
-    [:input
-     {:type  "submit"
-      :value "Invoice!"}]]])
+   [:button {:id "add-line-item"} "Add line item"]
+   [:div [:input {:type  "submit" :value "Invoice!"}]]])
 
 (defn dividend-form
   []
@@ -116,7 +114,7 @@
     [:main
      (invoice-nav)
      (dividends-nav)
-     [:section (invoice-form) [:button {:id "add-line-item"} "Add line item"]]
+     [:section (invoice-form) ]
      [:section
       (dividend-form)]]}
    {:file    "invoice.html"
