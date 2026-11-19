@@ -55,16 +55,24 @@
 
 (defn change-location [path] (set! (.-href js/location) path))
 
-(defn id->url [id] (let [[kind number] (str/split (name id) "-")]
+(defn split-id [id] (str/split (name id) "-"))
+(defn get-number [id] (last (split-id id)))
+(defn get-kind [id] (first (split-id id)))
+
+(defn id->url [id] (let [[kind number] (split-id id)]
                      (case kind
                        "invoice"  (str "/invoice.html?id=" number)
                        "dividend" (str "/dividend-voucher.html?id=" number)
+                       "board_minutes" (str "/board-minutes.html?id=" number)
                        "#")))
 
 (defn populate-form-nav [type]
   (let [parent (.getElementById js/document (str type "-nav"))]
     (.replaceChildren parent
-                      (html (for [k (get-keys-of type)] [:li [:a {:href (id->url k)} (name k)]])))))
+                      (html (for [k (get-keys-of type)]
+                              [:li
+                               [:a {:href (id->url k)} (name k)]
+                               (when (= type "dividend") [:a {:href (id->url (str "board_minutes-" (get-number k)))} (str "board_minutes-" (get-number k))])])))))
 
 (defn init-invoice-form
   []
