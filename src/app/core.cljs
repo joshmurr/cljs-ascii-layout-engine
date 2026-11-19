@@ -89,7 +89,7 @@
   (let [form                  (.getElementById js/document "invoice-form")
         submit-button-wrapper (.-parentNode (.querySelector form
                                                             "[type=submit]"))
-        add-button            (.getElementById js/document "add-line-item")
+        add-button            (.getElementById js/document "Add-line-item")
         line-item-count       (atom 1)]
     (.addEventListener (.getElementById js/document "invoice-number")
                        "input"

@@ -14,17 +14,15 @@
 
 (defn invoice-nav
   []
-  [:div
+  [:nav
    [:h3 "Invoices"]
-   [:nav
-    [:ol#invoice-nav]]])
+   [:ol#invoice-nav]])
 
 (defn dividends-nav
   []
-  [:div
+  [:nav
    [:h3 "Dividends"]
-   [:nav
-    [:ol#dividend-nav]]])
+   [:ol#dividend-nav]])
 
 (defn invoice-form
   []
@@ -64,8 +62,9 @@
                       :name     (:id item)}
                      (:attrs item))]]))
         (map-indexed vector line-item-fields))
-   [:button {:id "add-line-item"} "Add line item"]
-   [:div [:input {:type  "submit" :value "Invoice!"}]]])
+   [:div.button-container
+    [:button {:id "add-line-item"} "Add line item"]
+    [:input {:type  "submit" :value "Invoice!"}]]])
 
 (defn dividend-form
   []
@@ -103,8 +102,9 @@
       :step     "0.01"
       :min      "0.01"
       :required true}]]
-   [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
-   [:button {:type "submit" :value "board-minutes"} "Board minutes!"]])
+   [:div.button-container
+    [:button {:type "submit" :value "dividend-voucher"} "Dividends!"]
+    [:button {:type "submit" :value "board-minutes"} "Board minutes!"]]])
 
 (def pages
   [{:file    "index.html"
